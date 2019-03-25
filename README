@@ -1,0 +1,42 @@
+#DOCKER
+
+********* Show images ************
+$ docker images => docker image ls/list
+
+********* Show container************
+$ docker ps / docker container ls/list
+
+************ Create image from docker file and docker compose************
+$ docker-compose build
+
+************ Start services ************
+$ docker-compose up
+
+************ Create container ************
+$ docker run <image_name_or_id>
+
+************ Stop containers ************
+$ docker stop <conteiner_id> <other_conteiner_id>
+
+************ Remove images ************
+$ docker system prune
+
+************ Remove images by id ************
+$ docker rm <image_id> <other_image_id>
+
+************ Remove containers by id ************
+$ docker rm <conteiner_id> <other_conteiner_id>
+
+********* Execute any command in Linux container *****************
+$ docker exec -it <id_container> <command>
+
+********* Access to Linux console *****************
+$ docker exec -it <id_container> sh
+
+
+
+PROBLEMS
+
+when it doesn't run docker-comopose up services
+Soluction
+COMPOSE_CONVERT_WINDOWS_PATHS = 1 on env variables
