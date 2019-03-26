@@ -9,6 +9,15 @@
     return res;
   };
 
+  commonServices.handleRecordFound = (response, result) => {
+    if (result) {
+      if (!result.length) {
+        response.success = false;
+        response.message = "Not found";
+      }
+    }
+  };
+
   commonServices.sendEmail = (subject, from, to, html, text, cb ) => {
     var transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
@@ -43,5 +52,5 @@
 })(
   module.exports,
   require('nodemailer'),
-  require('../models/Dtos/Response')
+  require('../dtos/Response')
 )

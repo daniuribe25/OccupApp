@@ -17,10 +17,13 @@
   app.use(express.static(__dirname + '/public'));
   
   // Routes to controllers
-  const routerUser = require("./routes/userRoutes");
+  const routerUser = require('./routes/usersRoutes');
   app.use('/api', routerUser);
 
-  app.use('/', (req,res)=>{
+  const routerUserService = require('./routes/userServicesRoutes');
+  app.use('/api', routerUserService);
+
+  app.use('/', (req,res) => {
     res.send('Occupap Api');
   });
 
