@@ -1,4 +1,4 @@
-((userController, userRepo, mongoose, commonServ, bcrypt, jwt) => {
+((userController, userRepo, mongoose, commonServ, bcrypt, jwt, uploadServices) => {
 
   userController.getAll = (req, res) => {
     userRepo.get({}, 0, (response) => {
@@ -35,6 +35,7 @@
   }
 
   userController.create = (req, res) => {
+    const  file = req.file;
     let newUser = {
       email: req.body.email,
       password: bcrypt.hashSync(req.body.password, 12),
@@ -45,10 +46,22 @@
       document: req.body.document,
       cel: req.body.cel
     };
-
+    // create user
     userRepo.create(newUser, (response) => {
       if (response.success) {
-        sendUserEmail(response.output.name, response.output.email)
+        // upload and set image url
+        newUser = response.output._doc;
+        newUser.profileImage = file;
+        uploadServices.uploadProfileImage(newUser, (err, result) => {
+          if (response.success) {
+            newUser.profileImage = result.url;
+            userRepo.update(newUser._id, newUser, (response) => {
+              if (!response.success) console.log(response.message);
+            });
+          }
+        });
+        //send email
+        sendUserEmail(response.output.name, response.output.email);
         // create a token
         var token = jwt.sign({ id: response.output.id }, "secret_secret", {
           expiresIn: 86400
@@ -98,5 +111,6 @@
   require('mongoose'),
   require('../../helpers/commonServices'),
   require('bcryptjs'),
-  require('jsonwebtoken')
+  require('jsonwebtoken'),
+  require('../../helpers/uploadServices'),
 )

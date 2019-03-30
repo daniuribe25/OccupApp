@@ -10,6 +10,7 @@ var user = new Schema({
   docType:     { type: String },
   document:    { type: String },
   cel:         { type: String },
+  profileImage:{ type: String },
   location:  { 
     type: Schema.Types.ObjectId,
     ref: 'City'

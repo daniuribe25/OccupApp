@@ -1,11 +1,18 @@
-var express  = require("express");
+const express  = require("express");
+const multer = require('multer');
+const upload = multer({ storage: multer.diskStorage({
+  destination: (req, file, cb) => { cb(null, './uploads/'); },
+  filename: (req, file, cb) => {
+    const fileName = (new Date().toISOString()).replace(/:/g, '-');
+    cb(null, `${fileName}_${file.originalname}`)}
+}) });
 
-var usersCtrl = require('../controllers/users/usersController');
-var routerUser = express.Router();
+const usersCtrl = require('../controllers/users/usersController');
+const routerUser = express.Router();
 
 routerUser.route('/users')
     .get(usersCtrl.getAll)
-    .post(usersCtrl.create);
+    .post(upload.single('profileImage'), usersCtrl.create);
 
 routerUser.route('/users/:id')
     .get(usersCtrl.getById)

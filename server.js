@@ -15,7 +15,7 @@
   app.use(authenticateUser);
   app.use(cors);
   app.use(express.static(__dirname + '/public'));
-  
+
   // Routes to controllers
   const routerUser = require('./routes/usersRoutes');
   app.use('/api', routerUser);
