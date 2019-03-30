@@ -1,5 +1,5 @@
 'use strict';
-((express, http, bodyParser, methodOverride, mongoConnection, authenticateUser, cors) => {
+((express, http, bodyParser, methodOverride, mongoConnection, authenticateUser, cors, fs, path) => {
 
   // Config and variables
   require('custom-env').env(process.env.NODE_ENV);
@@ -7,6 +7,12 @@
   const server_port = process.env.PORT || 3000;
   http.createServer(app);
   mongoConnection.connect();
+
+  try {
+    fs.mkdirSync(path.join(__dirname, '/uploads/'))
+  } catch (err) {
+    if (err.code !== 'EEXIST') throw err
+  }
   
   // Middlewares
   app.use(bodyParser.urlencoded({ extended: false }));
@@ -38,5 +44,7 @@
   require("method-override"),
   require('./mongoConnection'),
   require('./config/middlewares').authenticateUser,
-  require('./config/middlewares').cors
+  require('./config/middlewares').cors,
+  require('fs'),
+  require('path'),
 )
