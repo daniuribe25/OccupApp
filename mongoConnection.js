@@ -9,7 +9,14 @@
       useNewUrlParser: true,
     };
     const connectWithRetry = () => {
-      mongoose.connect(`mongodb://localhost:27017/${process.env.MONGO_DB}`, options)
+      let connectionString = ''
+      if (process.env.NODE_ENV === 'development') {
+        connectionString = `mongodb://localhost:27017/${process.env.MONGO_DB}`;
+      } else {
+        connectionString =
+          `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@occupapp-zuyzw.mongodb.net/${process.env.MONGO_DB}?retryWrites=true`;
+      }
+      mongoose.connect(connectionString, options)
       .then(() => console.log(`${process.env.MONGO_DB} database is connected`))
       .catch(err => {
           console.log('MongoDB connection unsuccessful')
