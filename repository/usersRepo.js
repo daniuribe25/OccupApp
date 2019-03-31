@@ -4,7 +4,7 @@
   mongoose) => {
 
   userRepo.get = (query, limit, cb) => {
-    User.find(query, { password: 0 }, (err, records) => {
+    User.find(query, (err, records) => {
       let res = commonServ.handleErrorResponse(err);
       commonServ.handleRecordFound(res, records);
       res.output = records;

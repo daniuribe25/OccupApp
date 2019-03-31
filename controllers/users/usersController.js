@@ -21,14 +21,23 @@
   }
 
   userController.authUser = (req, res) => {
-    const query = { email: req.body.email, password: req.body.password };
+    
+    const query = { email: req.body.email };
     userRepo.get(query, 1, (response) => {
       if (response.output.length) {
-        // create a token
-        var token = jwt.sign({ id: response.output[0].id }, "secret_secret", {
-          expiresIn: 86400
-        });
-        response.token = token;
+        const pass = bcrypt.compareSync(req.body.password, response.output[0].password);
+        if (pass) {
+          // create a token
+          var token = jwt.sign({ id: response.output[0].id }, "secret_secret", {
+            expiresIn: 86400
+          });
+          response.token = token;
+        } else {
+          response.success = false;
+          response.message = "Password invalido."
+        }
+      } else {
+        response.message = "Usuario no existe"
       }
       res.json(response);
     });

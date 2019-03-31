@@ -22,7 +22,7 @@
           console.log('MongoDB connection unsuccessful')
           console.log(err);
           setTimeout(connectWithRetry, 5000);
-      }); 
+      });
     };
 
     connectWithRetry();

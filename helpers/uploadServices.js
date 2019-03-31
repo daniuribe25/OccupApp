@@ -10,7 +10,8 @@
     const options = { folder: 'ProfileImages', use_filename: true };
     cloudinary.v2.uploader.upload(user.profileImage.path, options, (error, result) => {
        if (result) {
-        fs.unlink(`./uploads/${result.original_filename}.${result.format}`, () => {
+        const fileName = `${result.original_filename}.${result.original_extension ? result.original_extension : result.format}`;
+        fs.unlink(`./uploads/${fileName}`, () => {
           cb(error, result);
         })
       }
