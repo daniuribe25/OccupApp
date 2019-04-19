@@ -60,8 +60,7 @@
       if (response.success) {
         // upload and set image url
         newUser = response.output._doc;
-        newUser.profileImage = file;
-        uploadServices.uploadProfileImage(newUser, (err, result) => {
+        uploadServices.uploadImage(file, 'ProfileImages', (err, result) => {
           if (response.success) {
             newUser.profileImage = result.url;
             userRepo.update(newUser._id, newUser, (response) => {

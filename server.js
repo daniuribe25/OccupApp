@@ -5,6 +5,8 @@
   require('custom-env').env(process.env.NODE_ENV);
   const app = express();
   const server_port = process.env.PORT || 3000;
+  const server_ip = process.env.IP || '172.31.192.1';
+
   http.createServer(app);
   mongoConnection.connect();
 
@@ -35,8 +37,11 @@
 
   // Boot app
   app.listen(server_port, () => {
-      console.log("Node server running on port - " + server_port);
+      console.log(`Node server running on ${server_port}`);
   });
+  // app.listen(server_port, server_ip, () => {
+  //   console.log(`Node server running on ${server_ip}:${server_port}`);
+  // });
 })(
   require("express"),
   require("http"),
