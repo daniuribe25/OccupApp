@@ -51,9 +51,8 @@
       name: req.body.name,
       lastName: req.body.lastName,
       birthday: req.body.birthday,
-      docType: req.body.docType,
-      document: req.body.document,
-      cel: req.body.cel
+      cel: req.body.cel,
+      loginType: req.body.loginType,
     };
     // create user
     userRepo.create(newUser, (response) => {
@@ -102,12 +101,57 @@
     });
   }
 
+  userController.recoverPassword = (req, res) => {
+    const query = { email: req.params.email };
+    userRepo.get(query, 1, (response) => {
+      // check if user with email was found
+      if (response.success) {
+        const user = response.output[0];
+        // if type is not facebook then lets create a new password and sent it to the user by email
+        if (user.loginType === 'LO') { 
+          let newPass = '';
+          const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+          for (let i = 0; i < 6; i++) {
+            newPass += characters.charAt(Math.floor(Math.random() * characters.length));
+          }
+          user.password = bcrypt.hashSync(newPass, 12);
+          // update user with new password
+          userRepo.update(user.id, user, (updateResp) => {
+            // send email with new pass
+            if (updateResp.success) {
+              sendUserPasswordRecover(user.name, user.email, newPass);
+            }
+            res.json(updateResp);
+          });
+        } else {
+          response.message = "Email se encuentra registrado a una cuenta de Facebook, por favor intenta ingresando por la opción de 'Continuar con facebook'"
+          res.json(response);
+        }
+      } else {
+        response.message = "Usuario no encontrado, asegurate de ingresar el email correctamente."
+        res.json(response);
+      }
+    });
+  }
+
   const sendUserEmail = (name, to) => {
     const htmlContent = "<div style='width:100px;height:100px;background:rgb(29, 172, 255)'>Buenos días " + name +" </div>";
 
     commonServ.sendEmail(
       'Occupapp wellcome',
       'dani.uribe25@gmail.com', to,
+      htmlContent, '',
+      (result) => result
+    );
+  };
+
+  const sendUserPasswordRecover = (name, to, password) => {
+    const htmlContent = `Nuevo password: ${password} <br /><br />
+                        Por favor asegurate de cambiar el password cuando ingreses a la aplicación`;
+
+    commonServ.sendEmail(
+      'Nuevo password Occupapp',
+      'dani.uribe25@gmail.com', 'dani.uribe25@gmail.com',
       htmlContent, '',
       (result) => result
     );

@@ -25,4 +25,8 @@ routerUser.route('/usersByEmail/:email')
 routerUser.route('/authUser')
     .post(usersCtrl.authUser)
 
+routerUser.route('/recoverPassword/:email')
+    .get(usersCtrl.recoverPassword)
+    
+
 module.exports = routerUser;
