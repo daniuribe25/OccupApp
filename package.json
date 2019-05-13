@@ -2,7 +2,7 @@
  "name": "occupapp",
  "version": "1.0.0",
  "scripts": {
-  "start": "sudo nodemon --inspect server.js"
+  "start": "nodemon --inspect server.js"
  },
  "dependencies": {
   "bcryptjs": "^2.4.3",
