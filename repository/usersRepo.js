@@ -19,9 +19,9 @@
     newUser.name = user.name;
     newUser.lastName = user.lastName;
     newUser.birthday = user.birthday;
-    newUser.docType = user.docType;
-    newUser.document = user.document;
     newUser.cel = user.cel;
+    newUser.loginType = user.loginType;
+    newUser.profileImage = user.profileImage;
 
     newUser.save((err, insertedItem) => {
       let res = commonServ.handleErrorResponse(err);

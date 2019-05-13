@@ -19,7 +19,6 @@
       description: req.body.description,
       user: req.body.user,
       service: req.body.service,
-      serviceMedia: req.body.serviceMedia,
       isActive: true,
     };
 

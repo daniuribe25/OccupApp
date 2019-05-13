@@ -25,26 +25,64 @@
     const query = { email: req.body.email };
     userRepo.get(query, 1, (response) => {
       if (response.output.length) {
-        const pass = bcrypt.compareSync(req.body.password, response.output[0].password);
-        if (pass) {
+        const pass = req.body.password ? bcrypt.compareSync(req.body.password, response.output[0].password) : null;
+        if (pass || req.body.loginType === 'FB') {
           // create a token
-          var token = jwt.sign({ id: response.output[0].id }, "secret_secret", {
-            expiresIn: 86400
-          });
-          response.token = token;
+          response.token = jwt.sign({ id: response.output[0].id }, "secret_secret", { expiresIn: 86400 });
         } else {
           response.success = false;
           response.message = "Password invalido."
         }
       } else {
+        response.success = false;
         response.message = "Usuario no existe"
       }
+      response.output = response.output._doc;
       res.json(response);
     });
   }
 
   userController.create = (req, res) => {
     const  file = req.file;
+    let newUser = {
+      email: req.body.email,
+      password: req.body.password ?
+        bcrypt.hashSync(req.body.password, 12) : 'occ',
+      name: req.body.name,
+      lastName: req.body.lastName,
+      birthday: req.body.birthday,
+      cel: req.body.cel,
+      loginType: req.body.loginType,
+      profileImage: !req.file ? req.body.profileImage : '',
+    };
+    // create user
+    userRepo.create(newUser, (response) => {
+      if (response.success) {
+        if (req.file) {
+          // upload and set image url
+          newUser = response.output._doc;
+          uploadServices.uploadImage(file, 'ProfileImages', (err, result) => {
+            if (response.success) {
+              newUser.profileImage = result.url;
+              userRepo.update(newUser._id, newUser, (response) => {
+                if (!response.success) console.log(response.message);
+              });
+            }
+          });
+        }
+        //send email
+        sendUserEmail(response.output.name, response.output.email);
+        // create a token
+        var token = jwt.sign({ id: response.output.id }, "secret_secret", {
+          expiresIn: 86400
+        });
+        response.token = token;
+      }
+      res.json(response);
+    });
+  }
+
+  userController.loginFacebook = (req, res) => {
     let newUser = {
       email: req.body.email,
       password: bcrypt.hashSync(req.body.password, 12),
@@ -54,27 +92,8 @@
       cel: req.body.cel,
       loginType: req.body.loginType,
     };
-    // create user
-    userRepo.create(newUser, (response) => {
-      if (response.success) {
-        // upload and set image url
-        newUser = response.output._doc;
-        uploadServices.uploadImage(file, 'ProfileImages', (err, result) => {
-          if (response.success) {
-            newUser.profileImage = result.url;
-            userRepo.update(newUser._id, newUser, (response) => {
-              if (!response.success) console.log(response.message);
-            });
-          }
-        });
-        //send email
-        sendUserEmail(response.output.name, response.output.email);
-        // create a token
-        var token = jwt.sign({ id: response.output.id }, "secret_secret", {
-          expiresIn: 86400
-        });
-        response.token = token;
-      }
+    // create login user
+    userRepo.upsert(newUser, (response) => {
       res.json(response);
     });
   }
