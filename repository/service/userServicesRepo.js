@@ -1,5 +1,6 @@
 ((userServicesRepo,
   UserService,
+  serviceCategory,
   Service,
   commonServ,
   mongoose) => {
@@ -7,16 +8,31 @@
   userServicesRepo.get = (query, limit, cb) => {
     UserService.find(query)
     .limit(limit)
-    .populate({ path: 'user' })
-    .populate('serviceMedia')
-    .populate('service')
+    .populate('user', 'name lastName')
+    .populate('serviceMedia', 'mediaUrl type')
+    .populate({
+      path: 'service',
+      select: 'name serviceCategory',
+      populate: { path: 'serviceCategory', select: 'name' },
+    })
     .exec((err, records) => {
       let res = commonServ.handleErrorResponse(err);
       commonServ.handleRecordFound(res, records);
-      res.output = records;
+      res.output = formatUserServices(records);
       cb(res);
     });
   };
+
+  formatUserServices = (userServices) => {
+    return userServices.map(x => ({
+      name: `${x.user.name} ${x.user.lastName}`,
+      service: x.service.name,
+      category: x.service.serviceCategory.name,
+      media: x.serviceMedia.map(m => m.mediaUrl),
+      rating: x.rating,
+      description: x.description,
+    }))
+  }
 
   userServicesRepo.create = (userService, cb) => {
     let newService = new UserService();
@@ -52,6 +68,7 @@
   module.exports,
   require('../../models/service/UserService'),
   require('../../models/service/Service'),
+  require('../../models/service/ServiceCategory'),
   require('../../helpers/commonServices'),
   require('mongoose')
 )

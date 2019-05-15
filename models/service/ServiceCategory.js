@@ -5,7 +5,7 @@ var serviceCategory = new Schema({
   name:        { type: String },
   isActive:    { type: Boolean },
 }, {
-  collection: 'ServiceCategories'
+  collection: 'ServiceCategory'
 });
 
 module.exports = mongoose.model('ServiceCategory', serviceCategory);

@@ -3,10 +3,10 @@ var mongoose = require('mongoose'),
 
 var service = new Schema({
   name:        { type: String },
-  // serviceCategory:  {
-  //   type: Schema.Types.ObjectId,
-  //   ref: 'ServiceCategory'
-  // },
+  serviceCategory:  {
+    type: Schema.Types.ObjectId,
+    ref: 'ServiceCategory'
+  },
   isActive:    { type: Boolean },
 }, {
   collection: 'Services'

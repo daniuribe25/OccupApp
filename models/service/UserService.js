@@ -19,7 +19,7 @@ const userService = new Schema({
   isActive:    { type: Boolean },
   createdDate: { type: Date, default: Date.now },
 }, {
-  collection: 'UserServices'
+  collection: 'UserService'
 });
 
 module.exports = mongoose.model('UserService', userService);

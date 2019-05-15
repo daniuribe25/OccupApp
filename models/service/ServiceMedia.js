@@ -2,9 +2,9 @@ var mongoose = require('mongoose'),
     Schema   = mongoose.Schema;
 
 var serviceMedia = new Schema({
-  service: {
+  userService: {
     type: Schema.Types.ObjectId,
-    ref: 'Service',
+    ref: 'UserService',
   },
   mediaUrl: { type: String },
   type: { type: String },
