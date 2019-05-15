@@ -15,7 +15,7 @@ const userService = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'ServiceMedia'
   }],
-  score:       { type: Number, min: 1, max: 5, default: 5 },
+  rating:       { type: String, default: "5.0" },
   isActive:    { type: Boolean },
   createdDate: { type: Date, default: Date.now },
 }, {
