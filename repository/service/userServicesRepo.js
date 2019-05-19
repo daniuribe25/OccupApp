@@ -25,7 +25,9 @@
 
   formatUserServices = (userServices) => {
     return userServices.map(x => ({
+      userId: x.user._id,
       name: `${x.user.name} ${x.user.lastName}`,
+      serviceId: x.service._id,
       service: x.service.name,
       category: x.service.serviceCategory.name,
       media: x.serviceMedia.map(m => m.mediaUrl),
