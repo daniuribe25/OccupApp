@@ -55,7 +55,6 @@
  })(
   module.exports,
   require('../../models/quote/Quote'),
-  require('../../models/service/Service'),
   require('../../config/constants').QUOTE_STATE,
   require('../../helpers/commonServices'),
   require('mongoose')

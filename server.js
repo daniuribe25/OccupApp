@@ -4,8 +4,7 @@
   // Config and variables
   require('custom-env').env(process.env.NODE_ENV);
   const app = express();
-  const server_port = process.env.PORT || 3000;
-  const server_ip = process.env.IP || '172.31.192.1';
+  const server_port = process.env.PORT || 5000;
 
   http.createServer(app);
   mongoConnection.connect();
@@ -30,6 +29,9 @@
 
   const routerUserService = require('./routes/userServicesRoutes');
   app.use('/api', routerUserService);
+  
+  const routerQuote = require('./routes/quotesRoutes');
+  app.use('/api', routerQuote);
 
   app.use('/', (req,res) => {
     res.send('Occupap Api');

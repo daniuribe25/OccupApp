@@ -3,7 +3,7 @@ var mongoose = require('mongoose'),
 
 var quote = new Schema({
   dateTime:    { type: Date },
-  description: { type: Boolean },
+  description: { type: String },
   location:    { type: String },
   state:       { type: String },
   service: {
