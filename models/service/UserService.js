@@ -16,7 +16,7 @@ const userService = new Schema({
     ref: 'ServiceMedia'
   }],
   rating:       { type: String, default: "5.0" },
-  isActive:    { type: Boolean },
+  isActive:    { type: Boolean, default: true },
   createdDate: { type: Date, default: Date.now },
 }, {
   collection: 'UserService'

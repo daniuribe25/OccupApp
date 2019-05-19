@@ -15,13 +15,7 @@
   }
 
   userServicesCtrl.create = (req, res) => {
-    const newService = {
-      description: req.body.description,
-      user: req.body.user,
-      service: req.body.service,
-      isActive: true,
-    };
-
+    const newService = req.body;
     userServicesRepo.create(newService, (servResponse) => {
       if (req.body.serviceMedia) {
         const idService = servResponse.output.id;

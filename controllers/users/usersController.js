@@ -9,6 +9,7 @@
   userController.getById = (req, res) => {
     const { id } = req.params;
     userRepo.get({ _id: mongoose.Types.ObjectId(id) }, 1, (response) => {
+      response.output = response.success ? response.output[0]._doc : null;
       res.json(response);
     });
   }
@@ -16,6 +17,7 @@
   userController.getByEmail = (req, res) => {
     const query = { email: req.params.email };
     userRepo.get(query, 1, (response) => {
+      response.output = response.success ? response.output[0]._doc : null;
       res.json(response);
     });
   }
@@ -37,7 +39,7 @@
         response.success = false;
         response.message = "Usuario no existe"
       }
-      response.output = response.output._doc;
+      response.output = response.output[0]._doc;
       res.json(response);
     });
   }
