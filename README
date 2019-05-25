@@ -33,7 +33,11 @@ $ docker exec -it <id_container> <command>
 ********* Access to Linux console *****************
 $ docker exec -it <id_container> sh
 
-
+*********KILL NODE:JS PROCCESS***************
+#check processes
+sudo netstat -lpn |grep :'3000'
+#kill it
+kill -9 <procces_id>
 
 PROBLEMS
 

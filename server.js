@@ -4,7 +4,7 @@
   // Config and variables
   require('custom-env').env(process.env.NODE_ENV);
   const app = express();
-  const server_port = process.env.PORT || 5000;
+  const server_port = process.env.PORT || 3000;
 
   http.createServer(app);
   mongoConnection.connect();

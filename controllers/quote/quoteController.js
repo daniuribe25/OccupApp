@@ -1,4 +1,4 @@
-((quoteCtrl, quoteRepo, quoteMediaRepo, mongoose) => {
+((quoteCtrl, quoteRepo, quoteMediaRepo, uploadServices, mongoose) => {
 
   quoteCtrl.getAll = (req, res) => {
     quoteRepo.get({}, 0, (response) => {
@@ -15,22 +15,29 @@
   }
 
   quoteCtrl.create = (req, res) => {
-    const newQuote = req.body;
-    quoteRepo.create(newQuote, (quoteResponse) => {
-      if (req.body.quoteMedia) {
-        const idQuote = quoteResponse.output.id;
-        const mediaArr = req.body.quoteMedia.map((x) => {
-          x.quote = idQuote;
-          return x;
-        });
-        quoteMediaRepo.create(mediaArr, (mediaResponse) => {
-          quoteRepo.update(quoteResponse.output.id,
-            { $push: { quoteMedia: mediaResponse.output.map(m => m.id) }},
-            (finalResp) => {
-              res.json(finalResp);
+    const { files, body } = req;
+    quoteRepo.create(body, (quoteResponse) => {
+      if (files && quoteResponse.success) {
+        const mediaArr = [];
+        newQuote = quoteResponse.output._doc;
+        for (let i = 0; i < files.length; i += 1) {
+          uploadServices.uploadImage(files[i], 'Quote', (err, result) => {
+            if (result) {
+              mediaArr.push({
+                quote: newQuote._id,
+                mediaUrl: result.url,
+                type: 'img',
+              });
+            }
+            if (result && mediaArr.length === files.length) {
+              quoteMediaRepo.create(mediaArr, (mediaResponse) => {
+                quoteRepo.update(newQuote._id, { quoteMedia: mediaResponse.output.map(x => x._id) },(finalResp) => {});
+              });
+            }
           });
-        });
-      } else res.json(quoteResponse);
+        }
+      }
+      res.json(quoteResponse);
     });
   }
 
@@ -87,5 +94,6 @@
   module.exports,
   require('../../repository/quote/quoteRepo'),
   require('../../repository/quote/quoteMediaRepo'),
+  require('../../helpers/uploadServices'),
   require('mongoose'),
 )
