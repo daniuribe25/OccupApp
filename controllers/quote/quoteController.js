@@ -1,4 +1,4 @@
-((quoteCtrl, quoteRepo, quoteMediaRepo, uploadServices, mongoose) => {
+((quoteCtrl, quoteRepo, quoteMediaRepo, uploadServices, mongoose, notificationService) => {
 
   quoteCtrl.getAll = (req, res) => {
     quoteRepo.get({}, 0, (response) => {
@@ -14,9 +14,28 @@
     });
   }
 
+  quoteCtrl.sendQuoteNotification = (receivedBy) => {
+    var data = { 
+      app_id: "368c949f-f2ef-4905-8c78-4040697f38cf",
+      contents: { en: "Respondela tan pronto sea posible"},
+      headings: { en: "Nueva Cotización"},
+      template_id: '1bc00fbd-1b9a-4f5f-abdd-83f48a0418cf',
+      include_player_ids: playerIds,
+    };
+
+    notificationService.send(data, (data) => {
+      res.json(JSON.parse(data))
+    }, (e) => {
+      res.json(JSON.parse(e))
+    });
+  }
+
   quoteCtrl.create = (req, res) => {
     const { files, body } = req;
     quoteRepo.create(body, (quoteResponse) => {
+      if (quoteResponse.success) {
+        this.sendQuoteNotification(body.receivedBy);
+      }
       if (files && quoteResponse.success) {
         const mediaArr = [];
         newQuote = quoteResponse.output._doc;
@@ -96,4 +115,5 @@
   require('../../repository/quote/quoteMediaRepo'),
   require('../../helpers/uploadServices'),
   require('mongoose'),
+  require('../../helpers/notificationService'),
 )

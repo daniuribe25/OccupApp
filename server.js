@@ -24,18 +24,11 @@
   app.use(express.static(__dirname + '/public'));
 
   // Routes to controllers
-  const routerUser = require('./routes/usersRoutes');
-  app.use('/api', routerUser);
-
-  const routerUserService = require('./routes/userServicesRoutes');
-  app.use('/api', routerUserService);
-  
-  const routerQuote = require('./routes/quotesRoutes');
-  app.use('/api', routerQuote);
-
-  app.use('/', (req,res) => {
-    res.send('Occupap Api');
-  });
+  app.use('/api', require('./routes/usersRoutes'));
+  app.use('/api', require('./routes/userServicesRoutes'));
+  app.use('/api', require('./routes/quotesRoutes'));
+  app.use('/api', require('./routes/notificationTokenRoutes'));
+  app.use('/', (req,res) => { res.send('Occupap Api'); });
 
   // Boot app
   app.listen(server_port, () => {
