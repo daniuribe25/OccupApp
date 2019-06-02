@@ -16,6 +16,18 @@
       commonServ.handleRecordFound(res, records);
       res.output = records;
       cb(res);
+    })
+  };
+
+  quoteRepo.getWithService = async (query, limit, cb) => {
+    const records = Quote.find(query)
+      .limit(limit)
+      .populate('service', 'name')
+      .exec((err, records) => {
+        let res = commonServ.handleErrorResponse(err);
+        commonServ.handleRecordFound(res, records);
+        res.output = records;
+        cb(res);
     });
   };
 

@@ -17,8 +17,10 @@ routerQuote.route('/quote')
     .post(upload.array('quoteMedia'), quoteCtrl.create);
 
 routerQuote.route('/quote/:id')
-    .get(quoteCtrl.getById)
     .patch(quoteCtrl.update)
     .delete(quoteCtrl.delete);
+
+routerQuote.route('/user_quote_full/:user').get(quoteCtrl.getByUser);
+routerQuote.route('/user_quote/:user').get(quoteCtrl.getWithServiceByUser);
 
 module.exports = routerQuote;

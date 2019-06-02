@@ -1,4 +1,4 @@
-((quoteCtrl, quoteRepo, quoteMediaRepo, uploadServices, mongoose, notificationService) => {
+((quoteCtrl, quoteRepo, quoteMediaRepo, uploadServices, mongoose, notificationService, notificationTokenRepo) => {
 
   quoteCtrl.getAll = (req, res) => {
     quoteRepo.get({}, 0, (response) => {
@@ -6,27 +6,43 @@
     });
   }
 
-  quoteCtrl.getById = (req, res) => {
-    const { id } = req.params;
-    quoteRepo.get({ _id: mongoose.Types.ObjectId(id) }, 1, (response) => {
-      if (response.output.length) response.output = response.output[0];
+  quoteCtrl.getByUser = (req, res) => {
+    const { user } = req.params;
+    const query = { "$or" : [
+      { sentBy: mongoose.Types.ObjectId(user) },
+      { receivedBy: mongoose.Types.ObjectId(user) }
+    ]};
+    quoteRepo.getPopulated(query, 0, (response) => {
+      res.json(response);
+    });
+  }
+
+  quoteCtrl.getWithServiceByUser = (req, res) => {
+    const { user } = req.params;
+    const query = { "$or" : [
+      { sentBy: mongoose.Types.ObjectId(user) },
+      { receivedBy: mongoose.Types.ObjectId(user) }
+    ]};
+    quoteRepo.getWithService(query, 0, (response) => {
       res.json(response);
     });
   }
 
   quoteCtrl.sendQuoteNotification = (receivedBy) => {
-    var data = { 
-      app_id: "368c949f-f2ef-4905-8c78-4040697f38cf",
-      contents: { en: "Respondela tan pronto sea posible"},
-      headings: { en: "Nueva Cotización"},
-      template_id: '1bc00fbd-1b9a-4f5f-abdd-83f48a0418cf',
-      include_player_ids: playerIds,
-    };
-
-    notificationService.send(data, (data) => {
-      res.json(JSON.parse(data))
-    }, (e) => {
-      res.json(JSON.parse(e))
+    notificationTokenRepo.get({ userId: receivedBy }, 1, (response) => {
+      if (response.success) {
+        var data = {
+          app_id: "368c949f-f2ef-4905-8c78-4040697f38cf",
+          contents: { en: "Respondela tan pronto sea posible"},
+          headings: { en: "Nueva Cotización"},
+          template_id: '1bc00fbd-1b9a-4f5f-abdd-83f48a0418cf',
+          include_player_ids: response.output[0].token,
+        };
+    
+        notificationService.send(data, () => {}, (e) => {
+          console.log(JSON.parse(e))
+        });
+      }
     });
   }
 
@@ -116,4 +132,5 @@
   require('../../helpers/uploadServices'),
   require('mongoose'),
   require('../../helpers/notificationService'),
+  require('../../repository/common/notificationTokenRepo'),
 )
