@@ -6,6 +6,13 @@
     });
   }
 
+  quoteCtrl.getById = (req, res) => {
+    quoteRepo.getPopulated({ _id: mongoose.Types.ObjectId(req.params.id) }, 1, (response) => {
+      if (response.output.length) response.output = response.output[0];
+      res.json(response);
+    });
+  }
+
   quoteCtrl.getByUser = (req, res) => {
     const { user } = req.params;
     const query = { "$or" : [
