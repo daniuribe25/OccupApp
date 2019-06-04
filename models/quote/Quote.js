@@ -6,6 +6,8 @@ var quote = new Schema({
   description: { type: String },
   location:    { type: String },
   state:       { type: String },
+  observation: { type: String },
+  price:       { type: Number },
   service: {
     type: Schema.Types.ObjectId,
     ref: 'Service'

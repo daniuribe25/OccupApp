@@ -83,6 +83,15 @@
     });
   }
 
+  quoteCtrl.answerQuote = (req, res) => {
+    const quotes = { state: req.body.state }
+    if (req.body.price) quotes.price = +req.body.price;
+    if (req.body.observation) quotes.observation = req.body.observation;
+    quoteRepo.update(req.body.id, quotes, (updateResp) => {
+      res.json(updateResp);
+    });
+  }
+
   quoteCtrl.update = (req, res) => {
     const quotes = {
       description: req.body.description,

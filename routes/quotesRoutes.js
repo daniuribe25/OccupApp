@@ -14,7 +14,8 @@ var routerQuote = express.Router();
 
 routerQuote.route('/quote')
     .get(quoteCtrl.getAll)
-    .post(upload.array('quoteMedia'), quoteCtrl.create);
+    .post(upload.array('quoteMedia'), quoteCtrl.create)
+    .patch(quoteCtrl.answerQuote);
 
 routerQuote.route('/quote/:id')
     .get(quoteCtrl.getById)
