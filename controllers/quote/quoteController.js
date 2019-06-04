@@ -84,7 +84,7 @@
   }
 
   quoteCtrl.answerQuote = (req, res) => {
-    const quotes = { state: req.body.state ? 'Answered' : 'Rejected' }
+    const quotes = { state: req.body.state === 'true' ? 'Answered' : 'Rejected' }
     if (req.body.price) quotes.price = +req.body.price;
     if (req.body.observation) quotes.observation = req.body.observation;
     quoteRepo.update(req.body.id, quotes, (updateResp) => {
