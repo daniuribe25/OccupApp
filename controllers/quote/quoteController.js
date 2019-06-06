@@ -1,4 +1,6 @@
-((quoteCtrl, quoteRepo, quoteMediaRepo, uploadServices, mongoose, notificationService, notificationTokenRepo) => {
+((quoteCtrl, quoteRepo, quoteMediaRepo, uploadServices,
+  mongoose, notificationService, notificationTokenRepo,
+  pushActions, quoteState) => {
 
   quoteCtrl.getAll = (req, res) => {
     quoteRepo.get({}, 0, (response) => {
@@ -35,15 +37,16 @@
     });
   }
 
-  quoteCtrl.sendQuoteNotification = (receivedBy) => {
-    notificationTokenRepo.get({ userId: receivedBy }, 1, (response) => {
+  quoteCtrl.sendQuoteNotification = (userId, title, message, action, id) => {
+    notificationTokenRepo.get({ userId }, 1, (response) => {
       if (response.success) {
         var data = {
           app_id: "368c949f-f2ef-4905-8c78-4040697f38cf",
-          contents: { en: "Respondela tan pronto sea posible"},
-          headings: { en: "Nueva Cotización"},
+          contents: { en: message },
+          headings: { en: title },
           template_id: '1bc00fbd-1b9a-4f5f-abdd-83f48a0418cf',
-          include_player_ids: response.output[0].token,
+          include_player_ids: [response.output[0].token],
+          data: { action, id }
         };
     
         notificationService.send(data, () => {}, (e) => {
@@ -57,7 +60,11 @@
     const { files, body } = req;
     quoteRepo.create(body, (quoteResponse) => {
       if (quoteResponse.success) {
-        this.sendQuoteNotification(body.receivedBy);
+        this.sendQuoteNotification(body.receivedBy,
+          "Nueva Cotización",
+          "Respondela tan pronto sea posible",
+          pushActions.SENT,
+          quoteResponse.output._id);
       }
       if (files && quoteResponse.success) {
         const mediaArr = [];
@@ -84,10 +91,22 @@
   }
 
   quoteCtrl.answerQuote = (req, res) => {
-    const quotes = { state: req.body.state === 'true' ? 'Answered' : 'Rejected' }
-    if (req.body.price) quotes.price = +req.body.price;
-    if (req.body.observation) quotes.observation = req.body.observation;
-    quoteRepo.update(req.body.id, quotes, (updateResp) => {
+    const { body } = req;
+    quotes.state = +body.state;
+    if (body.price) quotes.price = +body.price;
+    if (body.observation) quotes.observation = body.observation;
+    quoteRepo.update(body.id, quotes, (updateResp) => {
+      if (updateResp.success) {
+        const title =  quotes.state === quoteState.ANSWERED || quotes.state === quoteState.REJECTED ?
+          'Cotización respondida' : 'Precio Acordado';
+        const message =  quotes.state === quoteState.ANSWERED || quotes.state === quoteState.REJECTED ?
+          'Rápido! Revisa lo que te han respondido' : 'El solicitante le pareció bien tu precio, vamos a hacerlo!';
+        this.sendQuoteNotification(body.sentBy,
+          title,
+          message,
+          quotes.state,
+          body.id);
+      }
       res.json(updateResp);
     });
   }
@@ -149,4 +168,6 @@
   require('mongoose'),
   require('../../helpers/notificationService'),
   require('../../repository/common/notificationTokenRepo'),
+  require('../../config/constants').pushActions,
+  require('../../config/constants').quoteState
 )

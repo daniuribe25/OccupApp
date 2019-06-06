@@ -1,6 +1,6 @@
 ((quoteRepo,
   Quote,
-  QUOTE_STATE,
+  quoteState,
   commonServ,
   mongoose) => {
 
@@ -37,7 +37,7 @@
     newQuote.description = quote.description;
     newQuote.location = quote.location;
     newQuote.dateTime = quote.dateTime;
-    newQuote.state = QUOTE_STATE.SENT;
+    newQuote.state = quoteState.SENT;
     newQuote.sentBy = quote.sentBy;
     newQuote.receivedBy = quote.receivedBy;
 
@@ -67,7 +67,7 @@
  })(
   module.exports,
   require('../../models/quote/Quote'),
-  require('../../config/constants').QUOTE_STATE,
+  require('../../config/constants').quoteState,
   require('../../helpers/commonServices'),
   require('mongoose')
 )

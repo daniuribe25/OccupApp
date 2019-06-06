@@ -1,10 +1,16 @@
-const QUOTE_STATE = {
+const quoteState = {
     SENT: 'Sent',
-    ACCEPTED: 'Answered',
+    ANSWERED: 'Answered',
     REJECTED: 'Rejected',
     ARCHIVED: 'Archived',
 }
 
+const pushActions = {
+    SENT: 'Sent',
+    ANSWERED: 'Answered',
+}
+
 module.exports = {
-    QUOTE_STATE,
+    quoteState,
+    pushActions,
 }
