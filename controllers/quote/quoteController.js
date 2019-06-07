@@ -92,15 +92,15 @@
 
   quoteCtrl.answerQuote = (req, res) => {
     const { body } = req;
-    quotes.state = +body.state;
+    const quotes = { state: body.state }
     if (body.price) quotes.price = +body.price;
     if (body.observation) quotes.observation = body.observation;
     quoteRepo.update(body.id, quotes, (updateResp) => {
       if (updateResp.success) {
         const title =  quotes.state === quoteState.ANSWERED || quotes.state === quoteState.REJECTED ?
-          'Cotización respondida' : 'Precio Acordado';
+          'Cotización respondida' : 'Precio de cotización revisado';
         const message =  quotes.state === quoteState.ANSWERED || quotes.state === quoteState.REJECTED ?
-          'Rápido! Revisa lo que te han respondido' : 'El solicitante le pareció bien tu precio, vamos a hacerlo!';
+          'Rápido! Revisa lo que te han respondido' : 'El solicitante ha dado una respuesta a tu precio, vamos a verla!';
         this.sendQuoteNotification(body.sentBy,
           title,
           message,
