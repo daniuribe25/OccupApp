@@ -97,15 +97,17 @@
     if (body.observation) quotes.observation = body.observation;
     quoteRepo.update(body.id, quotes, (updateResp) => {
       if (updateResp.success) {
-        const title =  quotes.state === quoteState.ANSWERED || quotes.state === quoteState.REJECTED ?
-          'Cotización respondida' : 'Precio de cotización revisado';
-        const message =  quotes.state === quoteState.ANSWERED || quotes.state === quoteState.REJECTED ?
-          'Rápido! Revisa lo que te han respondido' : 'El solicitante ha dado una respuesta a tu precio, vamos a verla!';
-        this.sendQuoteNotification(body.sentBy,
-          title,
-          message,
-          quotes.state,
-          body.id);
+        let title, message, userId = '';
+        if (quotes.state === quoteState.ANSWERED || quotes.state === quoteState.REJECTED) {
+          title = 'Cotización respondida';
+          message = 'Rápido! Revisa lo que te han respondido';
+          userId = quotes.sentBy;
+        } else {
+          title = 'Precio de cotización revisado';
+          message = 'El solicitante ha dado una respuesta a tu precio, vamos a verla!';
+          userId = quotes.receivedBy;
+        }
+        this.sendQuoteNotification(userId, title, message, quotes.state, body.id);
       }
       res.json(updateResp);
     });

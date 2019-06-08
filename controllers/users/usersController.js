@@ -39,7 +39,7 @@
         response.success = false;
         response.message = "Usuario no existe"
       }
-      response.output = response.output[0]._doc;
+      response.output = response.success ? response.output[0]._doc : {};
       res.json(response);
     });
   }
