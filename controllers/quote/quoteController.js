@@ -1,6 +1,6 @@
 ((quoteCtrl, quoteRepo, quoteMediaRepo, uploadServices,
   mongoose, notificationService, notificationTokenRepo,
-  pushActions, quoteState) => {
+  pushActions, quoteStatus) => {
 
   quoteCtrl.getAll = (req, res) => {
     quoteRepo.get({}, 0, (response) => {
@@ -92,13 +92,13 @@
 
   quoteCtrl.answerQuote = (req, res) => {
     const { body } = req;
-    const quotes = { state: body.state }
+    const quotes = { status: body.status }
     if (body.price) quotes.price = +body.price;
     if (body.observation) quotes.observation = body.observation;
     quoteRepo.update(body.id, quotes, (updateResp) => {
       if (updateResp.success) {
         let title, message, userId = '';
-        if (quotes.state === quoteState.ANSWERED || quotes.state === quoteState.REJECTED) {
+        if (quotes.status === quoteStatus.ANSWERED || quotes.status === quoteStatus.REJECTED) {
           title = 'Cotización respondida';
           message = 'Rápido! Revisa lo que te han respondido';
           userId = quotes.sentBy;
@@ -107,7 +107,7 @@
           message = 'El solicitante ha dado una respuesta a tu precio, vamos a verla!';
           userId = quotes.receivedBy;
         }
-        this.sendQuoteNotification(userId, title, message, quotes.state, body.id);
+        this.sendQuoteNotification(userId, title, message, quotes.status, body.id);
       }
       res.json(updateResp);
     });
@@ -171,5 +171,5 @@
   require('../../helpers/notificationService'),
   require('../../repository/common/notificationTokenRepo'),
   require('../../config/constants').pushActions,
-  require('../../config/constants').quoteState
+  require('../../config/constants').quoteStatus
 )

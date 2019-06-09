@@ -5,7 +5,7 @@ var quote = new Schema({
   dateTime:    { type: Date },
   description: { type: String },
   location:    { type: String },
-  state:       { type: String },
+  status:       { type: String },
   observation: { type: String },
   price:       { type: Number },
   service: {

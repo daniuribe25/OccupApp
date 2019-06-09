@@ -27,6 +27,7 @@
   app.use('/api', require('./routes/usersRoutes'));
   app.use('/api', require('./routes/userServicesRoutes'));
   app.use('/api', require('./routes/quotesRoutes'));
+  app.use('/api', require('./routes/paymentsRoutes'));
   app.use('/api', require('./routes/notificationTokenRoutes'));
   app.use('/', (req,res) => { res.send('Occupap Api'); });
 
