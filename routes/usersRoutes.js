@@ -12,15 +12,18 @@ const routerUser = express.Router();
 
 routerUser.route('/users')
     .get(usersCtrl.getAll)
+    .patch(upload.single('profileImage'), usersCtrl.update)
     .post(upload.single('profileImage'), usersCtrl.create);
 
 routerUser.route('/users/:id')
     .get(usersCtrl.getById)
-    .patch(usersCtrl.update)
     .delete(usersCtrl.delete);
 
 routerUser.route('/usersByEmail/:email')
     .get(usersCtrl.getByEmail)
+
+routerUser.route('/updatePass')
+    .post(usersCtrl.updatePass)
 
 routerUser.route('/authUser')
     .post(usersCtrl.authUser)

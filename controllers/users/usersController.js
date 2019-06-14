@@ -101,18 +101,47 @@
   }
 
   userController.update = (req, res) => {
+    const file = req.file;
     let user = {
-      email: req.body.email,
-      pass: req.body.pass,
+      _id: mongoose.Types.ObjectId(req.body._id),
       name: req.body.name,
       lastName: req.body.lastName,
       birthday: req.body.birthday,
-      docType: req.body.docType,
-      document: req.body.document,
       cel: req.body.cel
     };
-    userRepo.update(req.params.id, user, (response) => {
+    userRepo.update(user._id.toString(), user, (response) => {
+      if (response.success && req.file) {
+        // upload and set image url
+        newUser = response.output._doc;
+        uploadServices.uploadImage(file, 'ProfileImages', (err, result) => {
+          if (response.success) {
+            newUser.profileImage = result.url;
+            userRepo.update(newUser._id, newUser, (response) => {
+              if (!response.success) console.log(response.message);
+            });
+          }
+        });
+      }
       res.json(response);
+    });
+  }
+
+  userController.updatePass = (req, res) => {
+    const { email, password, old_password } = req.body;
+    userRepo.get({ email }, 1, (response) => {
+      if (response.output.length) {
+        const pass = bcrypt.compareSync(old_password, response.output[0].password);
+        if (pass) {
+          const user = { _id: response.output[0]._id, password: bcrypt.hashSync(password, 12) };
+          userRepo.update(user._id.toString(), user, (response) => {
+            if (!response.success) console.log(response.message);
+          });
+        } else {
+          response.success = false;
+          response.message = "Password incorrecto"
+        }
+        res.json(response);
+      }
     });
   }
 
