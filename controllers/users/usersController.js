@@ -64,12 +64,13 @@
           // upload and set image url
           newUser = response.output._doc;
           uploadServices.uploadImage(file, 'ProfileImages', (err, result) => {
-            if (response.success) {
+            if (result.success) {
               newUser.profileImage = result.url;
               userRepo.update(newUser._id, newUser, (response) => {
-                if (!response.success) console.log(response.message);
+                res.output = newUser;
+                res.json(response);
               });
-            }
+            } else res.json(response);
           });
         }
         //send email
@@ -78,9 +79,12 @@
         var token = jwt.sign({ id: response.output.id }, "secret_secret", {
           expiresIn: 86400
         });
+
         response.token = token;
-      }
-      res.json(response);
+        response.output = output._doc;
+        if (!req.file) res.json(response);
+      } else res.json(response);
+      
     });
   }
 
@@ -118,11 +122,12 @@
             newUser.profileImage = result.url;
             userRepo.update(newUser._id, newUser, (response) => {
               if (!response.success) console.log(response.message);
+              response.output = newUser;
+              res.json(response);
             });
           }
         });
-      }
-      res.json(response);
+      } else res.json(response);
     });
   }
 
