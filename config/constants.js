@@ -7,6 +7,7 @@ const quoteStatus = {
 
 const paymentStatus = {
     ON_WALLET: 'OnWallet',
+    PAY_PENDING: 'PayPending',
     DISBURSED: 'Disbursed',
 };
 
