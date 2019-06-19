@@ -40,6 +40,14 @@
     });
   };
 
+  paymentRepo.updateMany = (query, set, cb) => {
+    Payment.updateMany(query, set, (err, updatedItem) => {
+      let res = commonServ.handleErrorResponse(err);
+      res.output = updatedItem;
+      cb(res);
+    });
+  };
+
   paymentRepo.delete = (query, cb) => {
     Payment.deleteOne(query, (err) => {
       let res = commonServ.handleErrorResponse(err);

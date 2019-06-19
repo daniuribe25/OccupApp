@@ -16,6 +16,7 @@ var user = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'City'
   },
+  daviplata:   { type: String },
   createdDate: { type: Date, default: Date.now },
 }, {
   collection: 'Users'

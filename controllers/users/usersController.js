@@ -105,34 +105,32 @@
   }
 
   userController.update = (req, res) => {
-    const file = req.file;
-    let user = {
-      _id: mongoose.Types.ObjectId(req.body._id),
-      name: req.body.name,
-      lastName: req.body.lastName,
-      birthday: req.body.birthday,
-      cel: req.body.cel
-    };
-    userRepo.update(user._id.toString(), user, (response) => {
-      if (response.success && req.file) {
-        // upload and set image url
-        newUser = response.output._doc;
-        uploadServices.uploadImage(file, 'ProfileImages', (err, result) => {
-          if (response.success) {
-            newUser.profileImage = result.url;
-            userRepo.update(newUser._id, newUser, (response) => {
-              if (!response.success) console.log(response.message);
-              response.output = newUser;
-              res.json(response);
-            });
-          }
-        });
-      } else res.json(response);
+    userRepo.get({ _id: mongoose.Types.ObjectId(req.body._id) }, 1, (response) => {
+      const user = response.output[0]._doc
+      user.name = req.body.name;
+      user.lastName = req.body.lastName;
+      user.cel = req.body.cel;
+
+      userRepo.update(user._id.toString(), user, (updateRes) => {
+        response.output = user;
+        if (updateRes.success && req.file) {
+          // upload and set image url
+          uploadServices.uploadImage(req.file, 'ProfileImages', (err, result) => {
+            if (response.success) {
+              user.profileImage = result.url;
+              userRepo.update(user._id, user, (response) => {
+                response.output = user;
+                res.json(response);
+              });
+            } else res.json(response);
+          });
+        } else res.json(response);
+      });
     });
   }
 
   userController.updatePass = (req, res) => {
-    const { email, password, old_password } = req.body;
+    let { email, password, old_password } = req.body;
     userRepo.get({ email }, 1, (response) => {
       if (response.output.length) {
         const pass = bcrypt.compareSync(old_password, response.output[0].password);
@@ -147,6 +145,14 @@
         }
         res.json(response);
       }
+    });
+  }
+
+  userController.linkDaviplata = (req, res) => {
+    let { daviplata, id } = req.body;
+    const user = { _id: mongoose.Types.ObjectId(id), daviplata };
+    userRepo.update(id, user, (response) => {
+      res.json(response)
     });
   }
 

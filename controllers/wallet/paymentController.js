@@ -1,5 +1,5 @@
 ((paymentCtrl, paymentRepo, mongoose, notificationService,
-  notificationTokenRepo, pushActions) => {
+  notificationTokenRepo, pushActions, paymentStatus) => {
 
   paymentCtrl.getAll = (req, res) => {
     paymentRepo.get({}, 0, (response) => {
@@ -53,6 +53,17 @@
     });
   }
 
+  paymentCtrl.disbursPayments = (req, res) => {
+    const query = { $and: [
+      { receivedBy: mongoose.Types.ObjectId(req.params.id) },
+      { status: paymentStatus.ON_WALLET }
+    ]};
+    paymentRepo.updateMany(query, { status: paymentStatus.PAY_PENDING }, (response) => {
+      res.json(response)
+    });
+  }
+  
+
   paymentCtrl.delete = (req, res) => {
     let query = { _id: mongoose.Types.ObjectId(req.params.id) };
     paymentRepo.delete(query, (response) => {
@@ -74,4 +85,5 @@
   require('../../helpers/notificationService'),
   require('../../repository/common/notificationTokenRepo'),
   require('../../config/constants').pushActions,
+  require('../../config/constants').paymentStatus,
 )

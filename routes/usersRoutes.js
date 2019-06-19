@@ -19,17 +19,11 @@ routerUser.route('/users/:id')
     .get(usersCtrl.getById)
     .delete(usersCtrl.delete);
 
-routerUser.route('/usersByEmail/:email')
-    .get(usersCtrl.getByEmail)
-
-routerUser.route('/updatePass')
-    .post(usersCtrl.updatePass)
-
-routerUser.route('/authUser')
-    .post(usersCtrl.authUser)
-
-routerUser.route('/recoverPassword/:email')
-    .get(usersCtrl.recoverPassword)
+routerUser.route('/usersByEmail/:email').get(usersCtrl.getByEmail)
+routerUser.route('/updatePass').post(usersCtrl.updatePass)
+routerUser.route('/authUser').post(usersCtrl.authUser)
+routerUser.route('/recoverPassword/:email').get(usersCtrl.recoverPassword)
+routerUser.route('/linkDaviplata/').post(usersCtrl.linkDaviplata)
     
 
 module.exports = routerUser;
