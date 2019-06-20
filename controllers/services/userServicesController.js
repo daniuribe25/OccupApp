@@ -18,7 +18,7 @@
     const { userId } = req.params;
     userServicesRepo.getPopulated({ userId }, 0, (response) => {
       if (response.success && response.output.length) {
-        const ids = response.output.map(x => x.service.toString());
+        const ids = response.output.map(x => x.serviceId.toString());
         const query = { $and: [{ serviceId: { $in: ids } }, { receivedById: userId}] };
         quoteRepo.get(query, 0, (resp) => {
           const userServices = response.output.map(us => {
