@@ -6,11 +6,13 @@ const userService = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'Service'
   },
+  serviceId:   { type: String },
   description: { type: String },
   user: {
     type: Schema.Types.ObjectId,
     ref: 'User'
   },
+  userId:      { type: String },
   serviceMedia: [{
     type: Schema.Types.ObjectId,
     ref: 'ServiceMedia'

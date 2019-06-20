@@ -19,8 +19,8 @@
     })
   };
 
-  quoteRepo.getWithService = async (query, limit, cb) => {
-    const records = Quote.find(query)
+  quoteRepo.getWithService = (query, limit, cb) => {
+    Quote.find(query)
       .limit(limit)
       .populate('service', 'name')
       .exec((err, records) => {
@@ -29,6 +29,15 @@
         res.output = records;
         cb(res);
     });
+  };
+
+  quoteRepo.get = (query, limit, cb) => {
+    Quote.find(query, (err, records) => {
+      let res = commonServ.handleErrorResponse(err);
+      commonServ.handleRecordFound(res, records);
+      res.output = records;
+      cb(res);
+    }).limit(limit);
   };
 
   quoteRepo.create = (quote, cb) => {

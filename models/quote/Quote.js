@@ -12,14 +12,17 @@ var quote = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'Service'
   },
+  serviceId:    { type: String },
   sentBy: {
     type: Schema.Types.ObjectId,
     ref: 'User'
   },
+  sentById:   { type: String },
   receivedBy: {
     type: Schema.Types.ObjectId,
     ref: 'User'
   },
+  receivedById: { type: String },
   quoteMedia:  [{
     type: Schema.Types.ObjectId,
     ref: 'QuoteMedia',

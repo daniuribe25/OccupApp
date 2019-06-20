@@ -1,16 +1,40 @@
-((userServicesCtrl, userServicesRepo, serviceMediaRepo, mongoose) => {
+((userServicesCtrl, userServicesRepo, serviceMediaRepo, mongoose, quoteRepo) => {
 
   userServicesCtrl.getAll = (req, res) => {
-    userServicesRepo.get({}, 0, (response) => {
+    userServicesRepo.getPopulated({}, 0, (response) => {
         res.json(response);
     });
   }
 
   userServicesCtrl.getById = (req, res) => {
     const { id } = req.params;
-    userServicesRepo.get({ _id: mongoose.Types.ObjectId(id) }, 1, (response) => {
+    userServicesRepo.getPopulated({ _id: mongoose.Types.ObjectId(id) }, 1, (response) => {
       if (response.output.length) response.output = response.output[0];
       res.json(response);
+    });
+  }
+
+  userServicesCtrl.getByUser = (req, res) => {
+    const { userId } = req.params;
+    userServicesRepo.get({ userId }, 0, (response) => {
+      if (response.success && response.output.length) {
+        const ids = response.output.map(x => x.service.toString());
+        const query = { $and: [{ serviceId: { $in: ids } }, { receivedById: userId}] };
+        quoteRepo.get(query, 0, (resp) => {
+          const userServices = response.output.map(us => {
+            const quotes = resp.output.filter(x => x.serviceId === us.serviceId && x.rating)
+            let total = 0;
+            for (let i = 0; i < quotes.length; i += 1) {
+              total +=  +quotes[i].rating;
+            }
+            us.rating = quotes.length ? total / quotes.length : 5;
+            return us;
+          });
+          resp.output = userServices;
+          res.json(resp);
+        });
+      } else res.json(response);
+      
     });
   }
 
@@ -88,4 +112,5 @@
   require('../../repository/service/userServicesRepo'),
   require('../../repository/service/serviceMediaRepo'),
   require('mongoose'),
+  require('../../repository/quote/quoteRepo'),
 )

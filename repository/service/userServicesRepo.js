@@ -5,7 +5,7 @@
   commonServ,
   mongoose) => {
 
-  userServicesRepo.get = (query, limit, cb) => {
+  userServicesRepo.getPopulated = (query, limit, cb) => {
     UserService.find(query)
     .limit(limit)
     .populate('user', 'name lastName')
@@ -19,6 +19,15 @@
       let res = commonServ.handleErrorResponse(err);
       commonServ.handleRecordFound(res, records);
       res.output = formatUserServices(records);
+      cb(res);
+    });
+  };
+
+  userServicesRepo.get = (query, limit, cb) => {
+    UserService.find(query, (err, records) => {
+      let res = commonServ.handleErrorResponse(err);
+      commonServ.handleRecordFound(res, records);
+      res.output = records;
       cb(res);
     });
   };

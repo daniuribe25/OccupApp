@@ -12,4 +12,7 @@ routerUserService.route('/user_services/:id')
     .patch(userServicesCtrl.update)
     .delete(userServicesCtrl.delete);
 
+routerUserService.route('/getByUser/:userId')
+    .get(userServicesCtrl.getByUser)
+    
 module.exports = routerUserService;
