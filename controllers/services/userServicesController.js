@@ -16,7 +16,7 @@
 
   userServicesCtrl.getByUser = (req, res) => {
     const { userId } = req.params;
-    userServicesRepo.get({ userId }, 0, (response) => {
+    userServicesRepo.getPopulated({ userId }, 0, (response) => {
       if (response.success && response.output.length) {
         const ids = response.output.map(x => x.service.toString());
         const query = { $and: [{ serviceId: { $in: ids } }, { receivedById: userId}] };
