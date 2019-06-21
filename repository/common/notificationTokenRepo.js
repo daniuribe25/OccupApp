@@ -33,6 +33,14 @@
       cb(res);
     });
   };
+  
+  notificationTokenRepo.upsert = (query, newData, cb) => {
+    NotificationToken.findOneAndUpdate(query, newData, {upsert:true}, (err, updatedItem) => {
+      let res = commonServ.handleErrorResponse(err);
+      res.output = updatedItem;
+      cb(res);
+    });
+  };
 
   notificationTokenRepo.delete = (query, cb) => {
     NotificationToken.deleteOne(query, (err) => {

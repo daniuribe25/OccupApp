@@ -88,22 +88,6 @@
     });
   }
 
-  userController.loginFacebook = (req, res) => {
-    let newUser = {
-      email: req.body.email,
-      password: bcrypt.hashSync(req.body.password, 12),
-      name: req.body.name,
-      lastName: req.body.lastName,
-      birthday: req.body.birthday,
-      cel: req.body.cel,
-      loginType: req.body.loginType,
-    };
-    // create login user
-    userRepo.upsert(newUser, (response) => {
-      res.json(response);
-    });
-  }
-
   userController.update = (req, res) => {
     userRepo.get({ _id: mongoose.Types.ObjectId(req.body._id) }, 1, (response) => {
       const user = response.output[0]._doc

@@ -6,9 +6,13 @@
     });
   }
 
-  notificationTokenCtrl.create = (req, res) => {
-    const newNT = req.body;
-    notificationTokenRepo.create(newNT, (servResponse) => {
+  notificationTokenCtrl.registerToken = (req, res) => {
+    const device_token = {
+      userId: req.body.userId,
+      token: req.body.token,
+      platform: req.body.platform,
+    }
+    notificationTokenRepo.upsert({ userId: req.body.userId }, device_token, (servResponse) => {
       res.json(servResponse);
     });
   }

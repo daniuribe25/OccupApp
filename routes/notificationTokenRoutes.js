@@ -5,6 +5,6 @@ const routerNotificationToken = express.Router();
 
 routerNotificationToken.route('/notificationToken')
     .get(nTCtrl.getAll)
-    .post(nTCtrl.create);
+    .post(nTCtrl.registerToken);
 
 module.exports = routerNotificationToken;
