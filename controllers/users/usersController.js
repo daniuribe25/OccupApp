@@ -60,6 +60,15 @@
     // create user
     userRepo.create(newUser, (response) => {
       if (response.success) {
+        //send email
+        sendUserEmail(response.output.name, response.output.email);
+        // create a token
+        var token = jwt.sign({ id: response.output.id }, "secret_secret", {
+          expiresIn: 86400
+        });
+        response.token = token;
+        response.output = response.output._doc;
+
         if (req.file) {
           // upload and set image url
           newUser = response.output._doc;
@@ -73,18 +82,9 @@
             } else res.json(response);
           });
         }
-        //send email
-        sendUserEmail(response.output.name, response.output.email);
-        // create a token
-        var token = jwt.sign({ id: response.output.id }, "secret_secret", {
-          expiresIn: 86400
-        });
-
-        response.token = token;
-        response.output = output._doc;
+        
         if (!req.file) res.json(response);
       } else res.json(response);
-      
     });
   }
 

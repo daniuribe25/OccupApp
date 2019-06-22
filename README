@@ -44,3 +44,6 @@ PROBLEMS
 when it doesn't run docker-comopose up services
 Soluction
 COMPOSE_CONVERT_WINDOWS_PATHS = 1 on env variables
+
+*******DELETE PROTECTED FOLDER********
+sudo rm -rf <folder_path>
