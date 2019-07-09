@@ -7,6 +7,7 @@ var service = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'ServiceCategory'
   },
+  serviceCategoryId:  { type: String },
   isActive:    { type: Boolean },
 }, {
   collection: 'Services'
