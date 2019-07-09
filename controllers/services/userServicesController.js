@@ -1,7 +1,7 @@
 ((userServicesCtrl, userServicesRepo, serviceMediaRepo, mongoose, quoteRepo) => {
 
   userServicesCtrl.getAll = (req, res) => {
-    userServicesRepo.getPopulated({}, 0, (response) => {
+    userServicesRepo.getPopulated({ isActive: { $not: false }}, 0, (response) => {
         res.json(response);
     });
   }
