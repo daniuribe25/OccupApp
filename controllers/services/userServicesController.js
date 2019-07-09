@@ -58,6 +58,15 @@
     });
   }
 
+  userServicesCtrl.disableService = (req, res) => {
+    const service = {
+      isActive: req.body.isActive,
+    };
+    userServicesRepo.update(req.params.id, service, (updateServResponse) => {
+      res.json(updateServResponse);
+    });
+  }
+
   userServicesCtrl.update = (req, res) => {
     const services = {
       description: req.body.description,

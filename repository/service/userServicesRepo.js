@@ -51,6 +51,7 @@
     newService.service = userService.service;
     newService.description = userService.description;
     newService.user = userService.user;
+    newService.userId = userService.user;
     newService.isActive = userService.isActive;
 
     newService.save((err, insertedItem) => {
