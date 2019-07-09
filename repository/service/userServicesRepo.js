@@ -42,6 +42,7 @@
       media: x.serviceMedia.map(m => m.mediaUrl),
       rating: x.rating,
       description: x.description,
+      isActive: x.isActive,
     }))
   }
 
