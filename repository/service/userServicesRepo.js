@@ -3,33 +3,38 @@
   serviceCategory,
   Service,
   commonServ,
+  Response,
   mongoose) => {
 
-  userServicesRepo.getPopulated = (query, limit, cb) => {
-    UserService.find(query)
-    .limit(limit)
-    .populate('user', 'name lastName')
-    .populate('serviceMedia', 'mediaUrl type')
-    .populate({
-      path: 'service',
-      select: 'name serviceCategory',
-      populate: { path: 'serviceCategory', select: 'name' },
-    })
-    .exec((err, records) => {
-      let res = commonServ.handleErrorResponse(err);
-      commonServ.handleRecordFound(res, records);
+  userServicesRepo.getPopulated = async (query, limit) => {
+    try {
+      const records = await UserService.find(query)
+        .limit(limit)
+        .populate('user', 'name lastName')
+        .populate('serviceMedia', 'mediaUrl type publicId')
+        .populate({
+          path: 'service',
+          select: 'name serviceCategory',
+          populate: { path: 'serviceCategory', select: 'name' },
+        })
+        .exec();
+      const res = new Response();
       res.output = formatUserServices(records);
-      cb(res);
-    });
+      return res;
+    } catch (err) {
+      return commonServ.handleErrorResponse(err);
+    }
   };
 
-  userServicesRepo.get = (query, limit, cb) => {
-    UserService.find(query, (err, records) => {
-      let res = commonServ.handleErrorResponse(err);
-      commonServ.handleRecordFound(res, records);
+  userServicesRepo.get = async (query) => {
+    try {
+      const records = await UserService.find(query)
+      const res = new Response();
       res.output = records;
-      cb(res);
-    });
+      return res;
+    } catch (err) {
+      return commonServ.handleErrorResponse(err);
+    }
   };
 
   formatUserServices = (userServices) => {
@@ -40,35 +45,42 @@
       serviceId: x.service._id,
       service: x.service.name,
       category: x.service.serviceCategory.name,
-      media: x.serviceMedia.map(m => m.mediaUrl),
+      categoryId: x.service.serviceCategory._id,
+      media: x.serviceMedia.map(m => ({ url: m.mediaUrl, publicId: m.publicId })),
       rating: x.rating,
       description: x.description,
       isActive: x.isActive,
     }))
   }
 
-  userServicesRepo.create = (userService, cb) => {
-    let newService = new UserService();
-    newService.service = userService.service;
-    newService.description = userService.description;
-    newService.user = userService.user;
-    newService.userId = userService.user;
-    newService.isActive = userService.isActive;
+  userServicesRepo.create = async (userService) => {
+    try {
+      let newService = new UserService();
+      newService.service = userService.service;
+      newService.description = userService.description;
+      newService.user = userService.user;
+      newService.userId = userService.user;
+      newService.isActive = true;
 
-    newService.save((err, insertedItem) => {
-      let res = commonServ.handleErrorResponse(err);
+      const insertedItem = await newService.save();
+      const res = new Response();
       res.output = insertedItem;
-      cb(res);
-    });
-  };
+      return res;
+    } catch (err) {
+      return commonServ.handleErrorResponse(err);
+    }
+  }
 
-  userServicesRepo.update = (id, userService, cb) => {
-    let query = { _id: mongoose.Types.ObjectId(id) };
-    UserService.updateOne(query, userService, (err, updatedItem) => {
-      let res = commonServ.handleErrorResponse(err);
+  userServicesRepo.update = async (id, userService) => {
+    try {
+      const query = { _id: mongoose.Types.ObjectId(id) };
+      const updatedItem = await UserService.updateOne(query, userService);
+      const res = new Response();
       res.output = updatedItem;
-      cb(res);
-    });
+      return res;
+    } catch (err) {
+      return commonServ.handleErrorResponse(err);
+    }
   };
 
   userServicesRepo.delete = (query, cb) => {
@@ -84,5 +96,6 @@
   require('../../models/service/Service'),
   require('../../models/service/ServiceCategory'),
   require('../../helpers/commonServices'),
+  require('../../dtos/Response'),
   require('mongoose')
 )

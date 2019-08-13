@@ -12,14 +12,14 @@ const userService = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'User'
   },
-  userId:      { type: String },
+  userId:       { type: String },
   serviceMedia: [{
     type: Schema.Types.ObjectId,
     ref: 'ServiceMedia'
   }],
   rating:       { type: String, default: "5.0" },
-  isActive:    { type: Boolean, default: true },
-  createdDate: { type: Date, default: Date.now },
+  isActive:     { type: Boolean, default: true },
+  createdAt:    { type: Date, default: new Date() },
 }, {
   collection: 'UserService'
 });

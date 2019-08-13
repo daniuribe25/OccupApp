@@ -2,7 +2,7 @@ var mongoose = require('mongoose'),
     Schema   = mongoose.Schema;
 
 var payment = new Schema({
-  dateTime:    { type: Date, default: Date.now() },
+  dateTime:    { type: Date, default: new Date() },
   status:      { type: String },
   value:       { type: Number },
   service: {

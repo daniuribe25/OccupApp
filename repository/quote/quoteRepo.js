@@ -19,6 +19,21 @@
     })
   };
 
+  quoteRepo.getWithUsers = async (query, limit, cb) => {
+    try {
+      const records = await Quote.find(query)
+        .limit(limit)
+        .populate('sentBy', 'name lastName profileImage')
+        .populate('receivedBy', 'name lastName profileImage')
+        .exec();
+      const res = new Response();
+      res.output = records;
+      return res;
+    } catch (err) {
+      return commonServ.handleErrorResponse(err);
+    }
+  };
+
   quoteRepo.getWithService = (query, limit, cb) => {
     Quote.find(query)
       .limit(limit)

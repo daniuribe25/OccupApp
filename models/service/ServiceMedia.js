@@ -7,6 +7,7 @@ var serviceMedia = new Schema({
     ref: 'UserService',
   },
   mediaUrl: { type: String },
+  publicId: { type: String },
   type: { type: String },
 }, {
   collection: 'ServiceMedia'

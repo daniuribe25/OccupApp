@@ -58,7 +58,7 @@
 
   quoteCtrl.create = (req, res) => {
     const { files, body } = req;
-    quoteRepo.create(body, (quoteResponse) => {
+    quoteRepo.create(body, async (quoteResponse) => {
       if (quoteResponse.success) {
         this.sendQuoteNotification(body.receivedBy,
           "Nueva Cotización",
@@ -70,20 +70,19 @@
         const mediaArr = [];
         newQuote = quoteResponse.output._doc;
         for (let i = 0; i < files.length; i += 1) {
-          uploadServices.uploadImage(files[i], 'Quote', (err, result) => {
-            if (result) {
-              mediaArr.push({
-                quote: newQuote._id,
-                mediaUrl: result.url,
-                type: 'img',
-              });
-            }
-            if (result && mediaArr.length === files.length) {
-              quoteMediaRepo.create(mediaArr, (mediaResponse) => {
-                quoteRepo.update(newQuote._id, { quoteMedia: mediaResponse.output.map(x => x._id) },(finalResp) => {});
-              });
-            }
-          });
+          const result = await uploadServices.uploadImage(files[i], 'Quote');
+          if (result.success) {
+            mediaArr.push({
+              quote: newQuote._id,
+              mediaUrl: result.url,
+              type: 'img',
+            });
+          }
+          if (result && mediaArr.length === files.length) {
+            quoteMediaRepo.create(mediaArr, (mediaResponse) => {
+              quoteRepo.update(newQuote._id, { quoteMedia: mediaResponse.output.map(x => x._id) },(finalResp) => {});
+            });
+          }
         }
       }
       res.json(quoteResponse);

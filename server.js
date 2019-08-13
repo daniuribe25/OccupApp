@@ -30,7 +30,8 @@
   app.use('/api', require('./routes/paymentsRoutes'));
   app.use('/api', require('./routes/notificationTokenRoutes'));
   app.use('/api', require('./routes/serviceCategoriesRoutes'));
-  app.use('/', (req,res) => { res.send('Occupap Api'); });
+  app.use('/api', require('./routes/chatsRoutes'));
+  app.use('/', (req,res) => { res.send('Occupapp Api'); });
 
   // Boot app
   app.listen(server_port, () => {

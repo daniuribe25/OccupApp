@@ -58,7 +58,7 @@
       profileImage: !req.file ? req.body.profileImage : '',
     };
     // create user
-    userRepo.create(newUser, (response) => {
+    userRepo.create(newUser, async (response) => {
       if (response.success) {
         //send email
         sendUserEmail(response.output.name, response.output.email);
@@ -72,15 +72,14 @@
         if (req.file) {
           // upload and set image url
           newUser = response.output._doc;
-          uploadServices.uploadImage(file, 'ProfileImages', (err, result) => {
-            if (result.success) {
-              newUser.profileImage = result.url;
-              userRepo.update(newUser._id, newUser, (response) => {
-                res.output = newUser;
-                res.json(response);
-              });
-            } else res.json(response);
-          });
+          const result = await uploadServices.uploadImage(file, 'ProfileImages');
+          if (result.success) {
+            newUser.profileImage = result.url;
+            userRepo.update(newUser._id, newUser, (response) => {
+              res.output = newUser;
+              res.json(response);
+            });
+          } else res.json(response);
         }
         
         if (!req.file) res.json(response);
@@ -95,19 +94,18 @@
       user.lastName = req.body.lastName;
       user.cel = req.body.cel;
 
-      userRepo.update(user._id.toString(), user, (updateRes) => {
+      userRepo.update(user._id.toString(), user, async (updateRes) => {
         response.output = user;
         if (updateRes.success && req.file) {
           // upload and set image url
-          uploadServices.uploadImage(req.file, 'ProfileImages', (err, result) => {
-            if (response.success) {
-              user.profileImage = result.url;
-              userRepo.update(user._id, user, (response) => {
-                response.output = user;
-                res.json(response);
-              });
-            } else res.json(response);
-          });
+          const result = await uploadServices.uploadImage(req.file, 'ProfileImages');
+          if (response.success) {
+            user.profileImage = result.url;
+            userRepo.update(user._id, user, (response) => {
+              response.output = user;
+              res.json(response);
+            });
+          } else res.json(response);
         } else res.json(response);
       });
     });

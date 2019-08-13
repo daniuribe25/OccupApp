@@ -1,6 +1,7 @@
 ((serviceMediaRepo,
   ServiceMedia,
   commonServ,
+  Response,
   mongoose) => {
 
   serviceMediaRepo.get = (query, limit, cb) => {
@@ -13,33 +14,40 @@
     .limit(limit);
   };
 
-  serviceMediaRepo.create = (images, cb) => {
+  serviceMediaRepo.create = async (images) => {
     const serviceMedia = [];
     images.forEach((i) => {
       serviceMedia.push({
         service: i.service,
         type: i.type,
         mediaUrl: i.mediaUrl,
+        publicId: i.publicId,
       });
     });
 
-    ServiceMedia.insertMany(serviceMedia, (err, insertedItem) => {
-      let res = commonServ.handleErrorResponse(err);
+    try {
+      const insertedItem = await ServiceMedia.insertMany(serviceMedia);
+      let res = new Response();
       res.output = insertedItem;
-      cb(res);
-    });
+      return res;
+    } catch (err) {
+      return commonServ.handleErrorResponse(err);
+    }
   };
 
-  serviceMediaRepo.delete = (query, cb) => {
-    ServiceMedia.deleteMany(query, (err) => {
-      const res = commonServ.handleErrorResponse(err);
-      cb(res);
-    });
+  serviceMediaRepo.delete = async (query) => {
+    try {
+      await ServiceMedia.deleteMany(query);
+      return new Response();
+    } catch (err) {
+      return commonServ.handleErrorResponse(err);
+    }
   };
 
  })(
   module.exports,
   require('../../models/service/ServiceMedia'),
   require('../../helpers/commonServices'),
+  require('../../dtos/Response'),
   require('mongoose')
 )

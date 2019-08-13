@@ -4,7 +4,8 @@
     let res = new Response();
     if (err) {
       res.success = false;
-      res.message = err;
+      res.message = 'Ha ocurrido un problema realizando la acción, intentalo de nuevo.';
+      res.traceMessage = err;
     }
     return res;
   };

@@ -17,7 +17,7 @@ var user = new Schema({
     ref: 'City'
   },
   daviplata:   { type: String },
-  createdDate: { type: Date, default: Date.now },
+  createdAt: { type: Date, default: new Date() },
 }, {
   collection: 'Users'
 });
