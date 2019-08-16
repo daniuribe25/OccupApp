@@ -13,8 +13,8 @@ var routerUserService = express.Router();
 
 routerUserService.route('/user_services')
     .get(userServicesCtrl.getAll)
-    .post(upload.array('serviceMedia'), userServicesCtrl.create)
-    .patch(upload.array('serviceMedia'), userServicesCtrl.update);
+    .post(userServicesCtrl.create)
+    .patch(userServicesCtrl.update);
 
 routerUserService.route('/user_services/:id')
     .get(userServicesCtrl.getById)
@@ -22,5 +22,8 @@ routerUserService.route('/user_services/:id')
 
 routerUserService.route('/getByUser/:userId').get(userServicesCtrl.getByUser)
 routerUserService.route('/disable_service/:id').patch(userServicesCtrl.disableService)
+routerUserService.route('/user_services_media')
+    .post(upload.array('serviceMedia'), userServicesCtrl.uploadImages)
+    .patch(upload.array('serviceMedia'), userServicesCtrl.updateImages);
 
 module.exports = routerUserService;

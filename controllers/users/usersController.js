@@ -167,7 +167,8 @@
             res.json(updateResp);
           });
         } else {
-          response.message = "Email se encuentra registrado a una cuenta de Facebook, por favor intenta ingresando por la opción de 'Continuar con facebook'"
+          response.message = "Email se encuentra registrado a una cuenta de Facebook, por favor intenta ingresando por la opción de 'Continuar con facebook'";
+          response.success = false;
           res.json(response);
         }
       } else {

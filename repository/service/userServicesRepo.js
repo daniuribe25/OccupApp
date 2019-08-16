@@ -83,11 +83,15 @@
     }
   };
 
-  userServicesRepo.delete = (query, cb) => {
-    UserService.deleteOne(query, (err) => {
-      let res = commonServ.handleErrorResponse(err);
-      cb(res);
-    });
+  userServicesRepo.delete = async (query) => {
+    try {
+      const resp = await UserService.deleteOne(query);
+      const res = new Response();
+      res.output = resp;
+      return res;
+    } catch (err) {
+      return commonServ.handleErrorResponse(err);
+    }
   };
 
  })(
