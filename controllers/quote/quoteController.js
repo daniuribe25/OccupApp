@@ -8,33 +8,30 @@
     });
   }
 
-  quoteCtrl.getById = (req, res) => {
-    quoteRepo.getPopulated({ _id: mongoose.Types.ObjectId(req.params.id) }, 1, (response) => {
-      if (response.output.length) response.output = response.output[0];
-      res.json(response);
-    });
+  quoteCtrl.getById = async (req, res) => {
+    const response = await quoteRepo.getPopulated({ _id: mongoose.Types.ObjectId(req.params.id) }, 1);
+    if (response.output.length) response.output = response.output[0];
+    res.json(response);
   }
 
-  quoteCtrl.getByUser = (req, res) => {
+  quoteCtrl.getByUser = async (req, res) => {
     const { user } = req.params;
     const query = { "$or" : [
-      { sentBy: mongoose.Types.ObjectId(user) },
-      { receivedBy: mongoose.Types.ObjectId(user) }
+      { sentById: user },
+      { receivedById: user }
     ]};
-    quoteRepo.getPopulated(query, 0, (response) => {
-      res.json(response);
-    });
+    const response = await quoteRepo.getPopulated(query, 0);
+    res.json(response);
   }
 
-  quoteCtrl.getWithServiceByUser = (req, res) => {
+  quoteCtrl.getWithServiceByUser = async (req, res) => {
     const { user } = req.params;
     const query = { "$or" : [
-      { sentBy: mongoose.Types.ObjectId(user) },
-      { receivedBy: mongoose.Types.ObjectId(user) }
+      { sentById: user },
+      { receivedById: user }
     ]};
-    quoteRepo.getWithService(query, 0, (response) => {
-      res.json(response);
-    });
+    const response = await quoteRepo.getWithService(query, 0);
+    res.json(response);
   }
 
   quoteCtrl.sendQuoteNotification = (userId, title, message, action, id) => {
@@ -61,7 +58,7 @@
     quoteRepo.create(body, async (quoteResponse) => {
       if (quoteResponse.success) {
         this.sendQuoteNotification(body.receivedBy,
-          "Nueva Cotización",
+          "Tienes una nueva Cotización",
           "Respondela tan pronto sea posible",
           pushActions.SENT,
           quoteResponse.output._id);

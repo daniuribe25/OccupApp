@@ -2,24 +2,27 @@
   Quote,
   quoteStatus,
   commonServ,
-  mongoose) => {
+  mongoose,
+  Response) => {
 
-  quoteRepo.getPopulated = (query, limit, cb) => {
-    Quote.find(query)
-    .limit(limit)
-    .populate('sentBy', 'name lastName')
-    .populate('receivedBy', 'name lastName')
-    .populate('quoteMedia', 'mediaUrl type')
-    .populate('service', 'name')
-    .exec((err, records) => {
-      let res = commonServ.handleErrorResponse(err);
-      commonServ.handleRecordFound(res, records);
+  quoteRepo.getPopulated = async (query, limit) => {
+    try {
+      const records = await Quote.find(query)
+        .limit(limit)
+        .populate('sentBy', 'name lastName')
+        .populate('receivedBy', 'name lastName')
+        .populate('quoteMedia', 'mediaUrl type')
+        .populate('service', 'name')
+        .exec();
+      const res = new Response();
       res.output = records;
-      cb(res);
-    })
+      return res;
+    } catch (err) {
+      return commonServ.handleErrorResponse(err);
+    }
   };
 
-  quoteRepo.getWithUsers = async (query, limit, cb) => {
+  quoteRepo.getWithUsers = async (query, limit) => {
     try {
       const records = await Quote.find(query)
         .limit(limit)
@@ -34,25 +37,29 @@
     }
   };
 
-  quoteRepo.getWithService = (query, limit, cb) => {
-    Quote.find(query)
-      .limit(limit)
-      .populate('service', 'name')
-      .exec((err, records) => {
-        let res = commonServ.handleErrorResponse(err);
-        commonServ.handleRecordFound(res, records);
-        res.output = records;
-        cb(res);
-    });
+  quoteRepo.getWithService = async (query, limit) => {
+    try {
+      const records = await Quote.find(query)
+        .limit(limit)
+        .populate('service', 'name')
+        .exec();
+      const res = new Response();
+      res.output = records;
+      return res;
+    } catch (err) {
+      return commonServ.handleErrorResponse(err);
+    }
   };
 
-  quoteRepo.get = (query, limit, cb) => {
-    Quote.find(query, (err, records) => {
-      let res = commonServ.handleErrorResponse(err);
-      commonServ.handleRecordFound(res, records);
+  quoteRepo.get = async (query, limit) => {
+    try {
+      const records = await Quote.find(query).limit(limit);;
+      const res = new Response();
       res.output = records;
-      cb(res);
-    }).limit(limit);
+      return res;
+    } catch (err) {
+      return commonServ.handleErrorResponse(err);
+    }
   };
 
   quoteRepo.create = (quote, cb) => {
@@ -93,5 +100,6 @@
   require('../../models/quote/Quote'),
   require('../../config/constants').quoteStatus,
   require('../../helpers/commonServices'),
-  require('mongoose')
+  require('mongoose'),
+  require('../../dtos/Response'),
 )
