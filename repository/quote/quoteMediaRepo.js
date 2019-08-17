@@ -1,7 +1,8 @@
 ((quoteMediaRepo,
   QuoteMedia,
   commonServ,
-  mongoose) => {
+  mongoose,
+  Response) => {
 
   quoteMediaRepo.get = (query, limit, cb) => {
     QuoteMedia.find(query, (err, records) => {
@@ -39,5 +40,6 @@
   module.exports,
   require('../../models/quote/QuoteMedia'),
   require('../../helpers/commonServices'),
-  require('mongoose')
+  require('mongoose'),
+  require('../../dtos/Response'),
 )

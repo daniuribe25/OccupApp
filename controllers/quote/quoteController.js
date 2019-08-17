@@ -70,15 +70,16 @@
         const result = await uploadServices.uploadImage(files[i], 'Quote');
         if (result.success) {
           mediaArr.push({
-            quote: newQuote._id,
-            mediaUrl: result.secure_url,
+            quote: newQuote._id.toString(),
+            mediaUrl: result.output.secure_url,
             type: 'img',
           });
         }
         if (result && mediaArr.length === files.length) {
           const mediaResponse = await quoteMediaRepo.create(mediaArr);
           await quoteRepo.update(newQuote._id, { quoteMedia: mediaResponse.output.map(x => x._id) });
-        } else res.json(quoteResponse);
+          res.json(quoteResponse);
+        }
       }
     } else res.json(quoteResponse);
   }
