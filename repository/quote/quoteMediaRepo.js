@@ -13,19 +13,26 @@
     .limit(limit);
   };
 
-  quoteMediaRepo.create = (images, cb) => {
-    QuoteMedia.insertMany(images, (err, insertedItem) => {
-      let res = commonServ.handleErrorResponse(err);
+  quoteMediaRepo.create = async (images) => {
+    try {
+      const insertedItem = await QuoteMedia.insertMany(images);
+      const res = new Response();
       res.output = insertedItem;
-      cb(res);
-    });
+      return res;
+    } catch (err) {
+      return commonServ.handleErrorResponse(err);
+    }
   };
 
-  quoteMediaRepo.delete = (query, cb) => {
-    QuoteMedia.deleteMany(query, (err) => {
-      const res = commonServ.handleErrorResponse(err);
-      cb(res);
-    });
+  quoteMediaRepo.delete = async (query) => {
+    try {
+      const resp = await QuoteMedia.deleteMany(query);
+      const res = new Response();
+      res.output = resp;
+      return res;
+    } catch (err) {
+      return commonServ.handleErrorResponse(err);
+    }
   };
 
  })(

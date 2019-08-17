@@ -62,37 +62,49 @@
     }
   };
 
-  quoteRepo.create = (quote, cb) => {
+  quoteRepo.create = async (quote) => {
     let newQuote = new Quote();
     newQuote.service = quote.service;
+    newQuote.serviceId = quote.service;
     newQuote.description = quote.description;
     newQuote.location = quote.location;
     newQuote.dateTime = quote.dateTime;
     newQuote.status = quoteStatus.SENT;
     newQuote.sentBy = quote.sentBy;
     newQuote.receivedBy = quote.receivedBy;
-
-    newQuote.save((err, insertedItem) => {
-      let res = commonServ.handleErrorResponse(err);
+    newQuote.sentById = quote.sentBy;
+    newQuote.receivedById = quote.receivedBy;
+    try {
+      const insertedItem = await newQuote.save();
+      const res = new Response();
       res.output = insertedItem;
-      cb(res);
-    });
+      return res;
+    } catch (err) {
+      return commonServ.handleErrorResponse(err);
+    }
   };
 
-  quoteRepo.update = (id, quote, cb) => {
-    let query = { _id: mongoose.Types.ObjectId(id) };
-    Quote.updateOne(query, quote, (err, updatedItem) => {
-      let res = commonServ.handleErrorResponse(err);
+  quoteRepo.update = async (id, quote) => {
+    try {
+      let query = { _id: mongoose.Types.ObjectId(id) };
+      const updatedItem = await Quote.updateOne(query, quote);
+      const res = new Response();
       res.output = updatedItem;
-      cb(res);
-    });
+      return res;
+    } catch (err) {
+      return commonServ.handleErrorResponse(err);
+    }
   };
 
-  quoteRepo.delete = (query, cb) => {
-    Quote.deleteOne(query, (err) => {
-      let res = commonServ.handleErrorResponse(err);
-      cb(res);
-    });
+  quoteRepo.delete = async (query) => {
+    try {
+      const resp = await Quote.deleteOne(query);
+      const res = new Response();
+      res.output = resp;
+      return res;
+    } catch (err) {
+      return commonServ.handleErrorResponse(err);
+    }
   };
 
  })(

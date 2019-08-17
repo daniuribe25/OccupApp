@@ -4,7 +4,7 @@
 
   quoteCtrl.getAll = (req, res) => {
     quoteRepo.get({}, 0, (response) => {
-        res.json(response);
+      res.json(response);
     });
   }
 
@@ -53,63 +53,59 @@
     });
   }
 
-  quoteCtrl.create = (req, res) => {
+  quoteCtrl.create = async (req, res) => {
     const { files, body } = req;
-    quoteRepo.create(body, async (quoteResponse) => {
-      if (quoteResponse.success) {
-        this.sendQuoteNotification(body.receivedBy,
-          "Tienes una nueva Cotización",
-          "Respondela tan pronto sea posible",
-          pushActions.SENT,
-          quoteResponse.output._id);
-      }
-      if (files && quoteResponse.success) {
-        const mediaArr = [];
-        newQuote = quoteResponse.output._doc;
-        for (let i = 0; i < files.length; i += 1) {
-          const result = await uploadServices.uploadImage(files[i], 'Quote');
-          if (result.success) {
-            mediaArr.push({
-              quote: newQuote._id,
-              mediaUrl: result.secure_url,
-              type: 'img',
-            });
-          }
-          if (result && mediaArr.length === files.length) {
-            quoteMediaRepo.create(mediaArr, (mediaResponse) => {
-              quoteRepo.update(newQuote._id, { quoteMedia: mediaResponse.output.map(x => x._id) },(finalResp) => {});
-            });
-          }
+    const quoteResponse = await quoteRepo.create(body);
+    if (quoteResponse.success) {
+      this.sendQuoteNotification(body.receivedBy,
+        "Tienes una nueva Cotización",
+        "Respondela tan pronto sea posible",
+        pushActions.SENT,
+        quoteResponse.output._id);
+    }
+    if (files && quoteResponse.success) {
+      const mediaArr = [];
+      newQuote = quoteResponse.output._doc;
+      for (let i = 0; i < files.length; i += 1) {
+        const result = await uploadServices.uploadImage(files[i], 'Quote');
+        if (result.success) {
+          mediaArr.push({
+            quote: newQuote._id,
+            mediaUrl: result.secure_url,
+            type: 'img',
+          });
         }
+        if (result && mediaArr.length === files.length) {
+          const mediaResponse = await quoteMediaRepo.create(mediaArr);
+          await quoteRepo.update(newQuote._id, { quoteMedia: mediaResponse.output.map(x => x._id) });
+        } else res.json(quoteResponse);
       }
-      res.json(quoteResponse);
-    });
+    } else res.json(quoteResponse);
   }
 
-  quoteCtrl.answerQuote = (req, res) => {
+  quoteCtrl.answerQuote = async (req, res) => {
     const { body } = req;
     const quotes = { status: body.status }
     if (body.price) quotes.price = +body.price;
     if (body.observation) quotes.observation = body.observation;
-    quoteRepo.update(body.id, quotes, (updateResp) => {
-      if (updateResp.success) {
-        let title, message, userId = '';
-        if (quotes.status === quoteStatus.ANSWERED || quotes.status === quoteStatus.REJECTED) {
-          title = 'Cotización respondida';
-          message = 'Rápido! Revisa lo que te han respondido';
-          userId = quotes.sentBy;
-        } else {
-          title = 'Precio de cotización revisado';
-          message = 'El solicitante ha dado una respuesta a tu precio, vamos a verla!';
-          userId = quotes.receivedBy;
-        }
-        this.sendQuoteNotification(userId, title, message, quotes.status, body.id);
+    const updateResp = await quoteRepo.update(body.id, quotes);
+    if (updateResp.success) {
+      let title, message, userId = '';
+      if (quotes.status === quoteStatus.ANSWERED || quotes.status === quoteStatus.REJECTED) {
+        title = 'Cotización respondida';
+        message = 'Rápido! Revisa lo que te han respondido';
+        userId = quotes.sentBy;
+      } else {
+        title = 'Precio de cotización revisado';
+        message = 'El solicitante ha dado una respuesta a tu precio, vamos a verla!';
+        userId = quotes.receivedBy;
       }
-      res.json(updateResp);
-    });
+      this.sendQuoteNotification(userId, title, message, quotes.status, body.id);
+    }
+    res.json(updateResp);
   }
 
-  quoteCtrl.update = (req, res) => {
+  quoteCtrl.update = async (req, res) => {
     const quotes = {
       description: req.body.description,
       user: req.body.user,
@@ -117,45 +113,32 @@
       quoteMedia: [],
       isActive: req.body.isActive,
     };
-    quoteRepo.update(req.params.id, quotes, (updateServResponse) => {
-      if (updateServResponse.success) {
-        quoteMediaRepo.delete({ quote: mongoose.Types.ObjectId(req.params.id) },
-        (deleteMediaResponse) => {
-          if (deleteMediaResponse.success) {
-            const idQuote = req.params.id;
-            const mediaArr = req.body.quoteMedia.map((x) => {
-              x.quote = idQuote;
-              return x;
-            });
-            quoteMediaRepo.create(mediaArr, (mediaResponse) => {
-              if (mediaResponse.success) {
-                quoteRepo.update(req.params.id,
-                  { $push: { quoteMedia: mediaResponse.output.map(m => m.id) }},
-                  (finalResp) => {
-                    if (finalResp.success) {
-                      res.json(finalResp);
-                    }
-                });
-              }
-            });
-          }
+    const updateServResponse = await quoteRepo.update(req.params.id, quotes);
+    if (updateServResponse.success) {
+      const deleteMediaResponse = await quoteMediaRepo.delete({ quote: mongoose.Types.ObjectId(req.params.id) })
+      if (deleteMediaResponse.success) {
+        const idQuote = req.params.id;
+        const mediaArr = req.body.quoteMedia.map((x) => {
+          x.quote = idQuote;
+          return x;
         });
-      } else res.json(quoteResponse);
-    });
+        const mediaResponse = await quoteMediaRepo.create(mediaArr);
+        if (mediaResponse.success) {
+          const query = { $push: { quoteMedia: mediaResponse.output.map(m => m.id) }};
+          const finalResp = await quoteRepo.update(req.params.id, query);
+          res.json(finalResp);
+        } else res.json(updateServResponse);
+      } else res.json(updateServResponse);
+    } else res.json(updateServResponse);
   }
 
-  quoteCtrl.delete = (req, res) => {
+  quoteCtrl.delete = async (req, res) => {
     let query = { _id: mongoose.Types.ObjectId(req.params.id) };
-    quoteRepo.delete(query, (response) => {
-      if (response.success) {
-        quoteMediaRepo.delete({ quote: mongoose.Types.ObjectId(req.params.id) },
-          (deleteMediaResponse) => {
-            if (deleteMediaResponse.success) {
-              res.json(response);
-            }
-        });
-      }
-    });
+    const response = await quoteRepo.delete(query);
+    if (response.success) {
+      await quoteMediaRepo.delete({ quote: mongoose.Types.ObjectId(req.params.id) });
+      res.json(response);
+    } else res.json(response);
   }
 
  })(
