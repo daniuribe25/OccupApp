@@ -1,50 +1,45 @@
 ((userController, userRepo, mongoose, commonServ, bcrypt, jwt, uploadServices) => {
 
-  userController.getAll = (req, res) => {
-    userRepo.get({}, 0, (response) => {
-      res.json(response);
-    });
+  userController.getAll = async (req, res) => {
+    const response = await userRepo.get({}, 0);
+    res.json(response);
   }
 
-  userController.getById = (req, res) => {
+  userController.getById = async (req, res) => {
     const { id } = req.params;
-    userRepo.get({ _id: mongoose.Types.ObjectId(id) }, 1, (response) => {
-      response.output = response.success ? response.output[0]._doc : null;
-      res.json(response);
-    });
+    const response = await userRepo.get({ _id: mongoose.Types.ObjectId(id) }, 1);
+    response.output = response.success ? response.output[0]._doc : null;
+    res.json(response);
   }
 
-  userController.getByEmail = (req, res) => {
+  userController.getByEmail = async (req, res) => {
     const query = { email: req.params.email };
-    userRepo.get(query, 1, (response) => {
-      response.output = response.success ? response.output[0]._doc : null;
-      res.json(response);
-    });
+    const response = await userRepo.get(query, 1);
+    response.output = response.success ? response.output[0]._doc : null;
+    res.json(response);
   }
 
-  userController.authUser = (req, res) => {
-    
+  userController.authUser = async (req, res) => {
     const query = { email: req.body.email };
-    userRepo.get(query, 1, (response) => {
-      if (response.output.length) {
-        const pass = req.body.password ? bcrypt.compareSync(req.body.password, response.output[0].password) : null;
-        if (pass || req.body.loginType === 'FB') {
-          // create a token
-          response.token = jwt.sign({ id: response.output[0].id }, "secret_secret", { expiresIn: 86400 });
-        } else {
-          response.success = false;
-          response.message = "Password invalido."
-        }
+    const response = await userRepo.get(query, 1);
+    if (response.output.length) {
+      const pass = req.body.password ? bcrypt.compareSync(req.body.password, response.output[0].password) : null;
+      if (pass || req.body.loginType === 'FB') {
+        // create a token
+        response.token = jwt.sign({ id: response.output[0].id }, "secret_secret", { expiresIn: 86400 });
       } else {
         response.success = false;
-        response.message = "Usuario no existe"
+        response.message = "Password invalido."
       }
-      response.output = response.success ? response.output[0]._doc : {};
-      res.json(response);
-    });
+    } else {
+      response.success = false;
+      response.message = "Email no registrado"
+    }
+    response.output = response.success ? response.output[0]._doc : {};
+    res.json(response);
   }
 
-  userController.create = (req, res) => {
+  userController.create = async (req, res) => {
     const  file = req.file;
     let newUser = {
       email: req.body.email,
@@ -58,84 +53,79 @@
       profileImage: !req.file ? req.body.profileImage : '',
     };
     // create user
-    userRepo.create(newUser, async (response) => {
-      if (response.success) {
-        //send email
-        sendUserEmail(response.output.name, response.output.email);
-        // create a token
-        var token = jwt.sign({ id: response.output.id }, "secret_secret", {
-          expiresIn: 86400
-        });
-        response.token = token;
-        response.output = response.output._doc;
-
-        if (req.file) {
-          // upload and set image url
-          newUser = response.output._doc;
-          const result = await uploadServices.uploadImage(file, 'ProfileImages');
-          if (result.success) {
-            newUser.profileImage = result.url;
-            userRepo.update(newUser._id, newUser, (response) => {
-              res.output = newUser;
-              res.json(response);
-            });
-          } else res.json(response);
-        }
-        
-        if (!req.file) res.json(response);
-      } else res.json(response);
-    });
-  }
-
-  userController.update = (req, res) => {
-    userRepo.get({ _id: mongoose.Types.ObjectId(req.body._id) }, 1, (response) => {
-      const user = response.output[0]._doc
-      user.name = req.body.name;
-      user.lastName = req.body.lastName;
-      user.cel = req.body.cel;
-
-      userRepo.update(user._id.toString(), user, async (updateRes) => {
-        response.output = user;
-        if (updateRes.success && req.file) {
-          // upload and set image url
-          const result = await uploadServices.uploadImage(req.file, 'ProfileImages');
-          if (response.success) {
-            user.profileImage = result.url;
-            userRepo.update(user._id, user, (response) => {
-              response.output = user;
-              res.json(response);
-            });
-          } else res.json(response);
-        } else res.json(response);
+    response = await userRepo.create(newUser);
+    if (response.success) {
+      //send email
+      sendUserEmail(response.output.name, response.output.email);
+      // create a token
+      var token = jwt.sign({ id: response.output.id }, "secret_secret", {
+        expiresIn: 86400
       });
-    });
-  }
+      response.token = token;
+      response.output = response.output._doc;
 
-  userController.updatePass = (req, res) => {
-    let { email, password, old_password } = req.body;
-    userRepo.get({ email }, 1, (response) => {
-      if (response.output.length) {
-        const pass = bcrypt.compareSync(old_password, response.output[0].password);
-        if (pass) {
-          const user = { _id: response.output[0]._id, password: bcrypt.hashSync(password, 12) };
-          userRepo.update(user._id.toString(), user, (response) => {
-            if (!response.success) console.log(response.message);
-          });
-        } else {
-          response.success = false;
-          response.message = "Password incorrecto"
-        }
-        res.json(response);
+      if (req.file) {
+        // upload and set image url
+        newUser = response.output._doc;
+        const result = await uploadServices.uploadImage(file, 'ProfileImages');
+        if (result.success) {
+          newUser.profileImage = result.url;
+          await userRepo.update(newUser._id, newUser)
+          res.output = newUser;
+          res.json(response);
+        } else res.json(response);
       }
-    });
+      
+      if (!req.file) res.json(response);
+    } else res.json(response);
   }
 
-  userController.linkDaviplata = (req, res) => {
+  userController.update = async (req, res) => {
+    const response = await userRepo.get({ _id: mongoose.Types.ObjectId(req.body._id) }, 1)
+    const user = response.output[0]._doc
+    user.name = req.body.name;
+    user.lastName = req.body.lastName;
+    user.cel = req.body.cel;
+
+    const updateRes = await userRepo.update(user._id.toString(), user);
+    response.output = user;
+    if (updateRes.success && req.file) {
+      // upload and set image url
+      const result = await uploadServices.uploadImage(req.file, 'ProfileImages');
+      if (response.success) {
+        user.profileImage = result.output.url;
+        await userRepo.update(user._id, user);
+        response.output = user;
+        res.json(response);
+      } else res.json(response);
+    } else res.json(response);
+  }
+
+  userController.updatePass = async (req, res) => {
+    let { email, password, old_password } = req.body;
+    const response = await userRepo.get({ email }, 1);
+    if (response.output.length) {
+      const pass = bcrypt.compareSync(old_password, response.output[0].password);
+      if (pass) {
+        const user = { _id: response.output[0]._id, password: bcrypt.hashSync(password, 12) };
+        await userRepo.update(user._id.toString(), user);
+      } else {
+        response.success = false;
+        response.message = "Password incorrecto"
+      }
+      res.json(response);
+    } else {
+      response.success = false;
+      response.message = "Email no registrado"
+      res.json(response);
+    }
+  }
+
+  userController.linkDaviplata = async (req, res) => {
     let { daviplata, id } = req.body;
     const user = { _id: mongoose.Types.ObjectId(id), daviplata };
-    userRepo.update(id, user, (response) => {
-      res.json(response)
-    });
+    const response = await userRepo.update(id, user);
+    res.json(response)
   }
 
   userController.delete = (req, res) => {

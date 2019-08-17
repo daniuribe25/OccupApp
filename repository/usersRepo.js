@@ -1,56 +1,69 @@
 ((userRepo,
   User,
   commonServ,
-  mongoose) => {
+  mongoose,
+  Response) => {
 
-  userRepo.get = (query, limit, cb) => {
-    User.find(query, (err, records) => {
-      let res = commonServ.handleErrorResponse(err);
-      commonServ.handleRecordFound(res, records);
+  userRepo.get = async (query, limit) => {
+    try {
+      const records = await User.find(query).limit(limit)
+      const res = new Response();
       res.output = records;
-      cb(res);
-    }).limit(limit);
+      return res;
+    } catch (err) {
+      return commonServ.handleErrorResponse(err);
+    }
   };
 
-  userRepo.create = (user, cb) => {
-    let newUser = new User();
-    newUser.password = user.password;
-    newUser.email = user.email;
-    newUser.name = user.name;
-    newUser.lastName = user.lastName;
-    newUser.birthday = user.birthday;
-    newUser.cel = user.cel;
-    newUser.loginType = user.loginType;
-    newUser.profileImage = user.profileImage;
-
-    newUser.save((err, insertedItem) => {
-      let res = commonServ.handleErrorResponse(err);
+  userRepo.create = async (user) => {
+    try{
+      let newUser = new User();
+      newUser.password = user.password;
+      newUser.email = user.email;
+      newUser.name = user.name;
+      newUser.lastName = user.lastName;
+      newUser.birthday = user.birthday;
+      newUser.cel = user.cel;
+      newUser.loginType = user.loginType;
+      newUser.profileImage = user.profileImage;
+      
+      const insertedItem = await newUser.save();
+      const res = new Response();
       res.output = insertedItem;
-      cb(res);
-    });
+      return res;
+    } catch (err) {
+      return commonServ.handleErrorResponse(err);
+    }
   };
 
-  userRepo.update = (id, user, cb) => {
+  userRepo.update = async (id, user) => {
     let query = { _id: mongoose.Types.ObjectId(id) };
-    User.updateOne(query, user, (err, updatedItem) => {
-      let res = commonServ.handleErrorResponse(err);
+    try {
+      const updatedItem = await User.updateOne(query, user)
+      const res = new Response();
       res.output = updatedItem;
-      cb(res);
-    });
+      return res;
+    } catch (err) {
+      return commonServ.handleErrorResponse(err);
+    }
   };
 
-  userRepo.delete = (id, cb) => {
+  userRepo.delete = async (id) => {
     let query = { _id: mongoose.Types.ObjectId(id) };
-    User.deleteOne(query, (err) => {
-      let res = commonServ.handleErrorResponse(err);
+    try {
+      await User.deleteOne(query)
+      const res = new Response();
       res.output = id;
-      cb(res);
-    });
+      return res;
+    } catch (err) {
+      return commonServ.handleErrorResponse(err);
+    }
   };
 
  })(
   module.exports,
   require('../models/common/User'),
   require('../helpers/commonServices'),
-  require('mongoose')
+  require('mongoose'),
+  require('../dtos/Response'),
 )
