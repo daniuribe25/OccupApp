@@ -69,7 +69,7 @@
         if (result.success) {
           mediaArr.push({
             userService: body._id,
-            mediaUrl: result.output.url,
+            mediaUrl: result.output.secure_url,
             publicId: result.output.public_id,
             type: 'img',
           });
@@ -108,7 +108,7 @@
         if (result.success) {
           mediaArr.push({
             userService: req.body._id,
-            mediaUrl: result.output.url,
+            mediaUrl: result.output.secure_url,
             publicId: result.output.public_id,
             type: 'img',
           });

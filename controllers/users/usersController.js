@@ -93,7 +93,7 @@
       // upload and set image url
       const result = await uploadServices.uploadImage(req.file, 'ProfileImages');
       if (response.success) {
-        user.profileImage = result.output.url;
+        user.profileImage = result.output.secure_url;
         await userRepo.update(user._id, user);
         response.output = user;
         res.json(response);

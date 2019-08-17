@@ -74,7 +74,7 @@
           if (result.success) {
             mediaArr.push({
               quote: newQuote._id,
-              mediaUrl: result.url,
+              mediaUrl: result.secure_url,
               type: 'img',
             });
           }
