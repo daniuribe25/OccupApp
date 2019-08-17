@@ -134,38 +134,36 @@
     });
   }
 
-  userController.recoverPassword = (req, res) => {
+  userController.recoverPassword = async (req, res) => {
     const query = { email: req.params.email };
-    userRepo.get(query, 1, (response) => {
-      // check if user with email was found
-      if (response.success) {
-        const user = response.output[0];
-        // if type is not facebook then lets create a new password and sent it to the user by email
-        if (user.loginType === 'LO') { 
-          let newPass = '';
-          const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-          for (let i = 0; i < 6; i++) {
-            newPass += characters.charAt(Math.floor(Math.random() * characters.length));
-          }
-          user.password = bcrypt.hashSync(newPass, 12);
-          // update user with new password
-          userRepo.update(user.id, user, (updateResp) => {
-            // send email with new pass
-            if (updateResp.success) {
-              sendUserPasswordRecover(user.name, user.email, newPass);
-            }
-            res.json(updateResp);
-          });
-        } else {
-          response.message = "Email se encuentra registrado a una cuenta de Facebook, por favor intenta ingresando por la opción de 'Continuar con facebook'";
-          response.success = false;
-          res.json(response);
+    const response = await userRepo.get(query, 1);
+    // check if user with email was found
+    if (response.success) {
+      const user = response.output[0];
+      // if type is not facebook then lets create a new password and sent it to the user by email
+      if (user.loginType === 'CL') { 
+        let newPass = '';
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        for (let i = 0; i < 6; i++) {
+          newPass += characters.charAt(Math.floor(Math.random() * characters.length));
         }
+        user.password = bcrypt.hashSync(newPass, 12);
+        // update user with new password
+        const updateResp = await userRepo.update(user.id, user);
+        // send email with new pass
+        if (updateResp.success) {
+          sendUserPasswordRecover(user.name, user.email, newPass);
+        }
+        res.json(updateResp);
       } else {
-        response.message = "Usuario no encontrado, asegurate de ingresar el email correctamente."
+        response.message = "Email se encuentra registrado a una cuenta de Facebook, por favor intenta ingresando por la opción de 'Continuar con facebook'";
+        response.success = false;
         res.json(response);
       }
-    });
+    } else {
+      response.message = "Usuario no encontrado, asegurate de ingresar el email correctamente."
+      res.json(response);
+    }
   }
 
   const sendUserEmail = (name, to) => {
@@ -181,7 +179,7 @@
 
   const sendUserPasswordRecover = (name, to, password) => {
     const htmlContent = `Nuevo password: ${password} <br /><br />
-                        Por favor asegurate de cambiar el password cuando ingreses a la aplicación`;
+                        Por favor asegurate de cambiar el password cuando ingreses a la aplicación, en la sección de Perfil - Configuración - Cambiar contraseña`;
 
     commonServ.sendEmail(
       'Nuevo password Occupapp',
