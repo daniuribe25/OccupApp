@@ -19,19 +19,18 @@
     if (response.success && response.output.length) {
       const ids = response.output.map(x => x.serviceId.toString());
       const query = { $and: [{ serviceId: { $in: ids } }, { receivedById: userId}] };
-      quoteRepo.get(query, 0, (resp) => {
-        const userServices = response.output.map(us => {
-          const quotes = resp.output.filter(x => x.serviceId === us.serviceId && x.rating)
-          let total = 0;
-          for (let i = 0; i < quotes.length; i += 1) {
-            total +=  +quotes[i].rating;
-          }
-          us.rating = quotes.length ? total / quotes.length : 5;
-          return us;
-        });
-        resp.output = userServices;
-        res.json(resp);
+      const resp = await quoteRepo.get(query, 0);
+      const userServices = response.output.map(us => {
+        const quotes = resp.output.filter(x => x.serviceId === us.serviceId && x.rating)
+        let total = 0;
+        for (let i = 0; i < quotes.length; i += 1) {
+          total +=  +quotes[i].rating;
+        }
+        us.rating = quotes.length ? total / quotes.length : 5;
+        return us;
       });
+      resp.output = userServices;
+      res.json(resp);
     } else res.json(response);
   }
 

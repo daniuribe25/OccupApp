@@ -95,11 +95,11 @@
       if (quotes.status === quoteStatus.ANSWERED || quotes.status === quoteStatus.REJECTED) {
         title = 'Cotización respondida';
         message = 'Rápido! Revisa lo que te han respondido';
-        userId = quotes.sentBy;
+        userId = body.sentBy;
       } else {
         title = 'Precio de cotización revisado';
         message = 'El solicitante ha dado una respuesta a tu precio, vamos a verla!';
-        userId = quotes.receivedBy;
+        userId = body.receivedBy;
       }
       this.sendQuoteNotification(userId, title, message, quotes.status, body.id);
     }
