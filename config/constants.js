@@ -2,7 +2,9 @@ const quoteStatus = {
     SENT: 'Sent',
     ANSWERED: 'Answered',
     REJECTED: 'Rejected',
-    ARCHIVED: 'Archived',
+    ACCEPTED: 'Accepted',
+    NO_ACCEPTED: 'NoAccepted',
+    ARCHIVED: 'Finished',
 };
 
 const paymentStatus = {

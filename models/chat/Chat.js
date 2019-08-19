@@ -2,13 +2,21 @@ var mongoose = require('mongoose'),
     Schema   = mongoose.Schema;
 
 var chat = new Schema({
-  text:     { type: String },
-  timestamp:   { type: Number },
-  user: {
+  user1: {
     type: Schema.Types.ObjectId,
     ref: 'User'
   },
-  userId:     { type: String },
+  user1Id:     { type: String },
+  user2: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  user2Id:     { type: String },
+  messages: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Message'
+  }],
+  isActive:  { type: Boolean, default: true },
 }, {
   collection: 'Chats'
 });

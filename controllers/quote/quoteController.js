@@ -1,6 +1,6 @@
 ((quoteCtrl, quoteRepo, quoteMediaRepo, uploadServices,
   mongoose, notificationService, notificationTokenRepo,
-  pushActions, quoteStatus) => {
+  chatRepo, pushActions, quoteStatus) => {
 
   quoteCtrl.getAll = (req, res) => {
     quoteRepo.get({}, 0, (response) => {
@@ -102,8 +102,13 @@
         userId = body.receivedBy;
       }
       this.sendQuoteNotification(userId, title, message, quotes.status, body.id);
-    }
-    res.json(updateResp);
+
+      if (quotes.status === quoteStatus.ACCEPTED) {
+        const chat = { user1: body.sentBy, user2: body.receivedBy };
+        await chatRepo.findOrCreate(chat);
+      }
+      res.json(updateResp);
+    } else res.json(updateResp);
   }
 
   quoteCtrl.update = async (req, res) => {
@@ -150,6 +155,7 @@
   require('mongoose'),
   require('../../helpers/notificationService'),
   require('../../repository/common/notificationTokenRepo'),
+  require('../../repository/chat/chatRepo'),
   require('../../config/constants').pushActions,
   require('../../config/constants').quoteStatus
 )
