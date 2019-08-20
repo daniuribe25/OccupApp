@@ -1,12 +1,17 @@
 'use strict';
-((express, http, bodyParser, methodOverride, mongoConnection, authenticateUser, cors, fs, path) => {
+((express, http, bodyParser, methodOverride, mongoConnection,
+  authenticateUser, cors, fs, path, socket) => {
 
   // Config and variables
   require('custom-env').env(process.env.NODE_ENV);
-  const app = express();
   const server_port = process.env.PORT || 3000;
-
-  http.createServer(app);
+  // Set express server
+  const app = express();
+  const httpApp = http.createServer(app);
+  // Set socket server
+  const io = socket(httpApp)
+  const mobileSockets = {};
+  // Connect database
   mongoConnection.connect();
 
   try {
@@ -31,15 +36,20 @@
   app.use('/api', require('./routes/notificationTokenRoutes'));
   app.use('/api', require('./routes/serviceCategoriesRoutes'));
   app.use('/api', require('./routes/chatsRoutes'));
-  app.use('/', (req,res) => { res.send('Occupapp Api'); });
+  app.use('/', (req, res) => { res.send('Occupapp Api'); });
+
+  // On socket connection
+  const chatSocket = require('./sockets/chatSocket');
+
+  io.on('connection', (socket) => {
+    socket.on('setId', userId => mobileSockets[userId] = socket.id);
+    socket.on('message', message => chatSocket.saveMessage(socket, mobileSockets, message));
+  });
 
   // Boot app
-  app.listen(server_port, () => {
+  httpApp.listen(server_port, () => {
       console.log(`Node server running on ${server_port}`);
   });
-  // app.listen(server_port, server_ip, () => {
-  //   console.log(`Node server running on ${server_ip}:${server_port}`);
-  // });
 })(
   require("express"),
   require("http"),
@@ -50,4 +60,5 @@
   require('./config/middlewares').cors,
   require('fs'),
   require('path'),
+  require('socket.io'),
 )
