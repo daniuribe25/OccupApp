@@ -1,5 +1,5 @@
 ((chatRepo,
-  Messages,
+  Message,
   Chat,
   commonServ,
   Response,
@@ -36,11 +36,30 @@
     }
   };
 
+  chatRepo.addMessage = async (chatId, m) => {
+    try {
+      const newMessage = new Message();
+      newMessage.text = m.text;
+      newMessage.userId = m.user;
+      newMessage.user = m.user;
+      newMessage.createdAt = m.createdAt;
+      const insertedMessage = await newMessage.save();
+
+      const query = { $push: { messages: insertedMessage.id }};
+      await Chat.update({ _id: mongoose.Types.ObjectId(chatId) }, query);
+      const res = new Response();
+      res.output = insertedMessage;
+      return res;
+    } catch (err) {
+      return commonServ.handleErrorResponse(err);
+    }
+  };
+
   chatRepo.getPopulated = async (query, limit) => {
     try {
       const records = await Chat.find(query)
         .limit(limit)
-        .populate('messages', 'text timestamp userId')
+        .populate('messages', 'text createdAt userId')
         .populate('user1', 'name lastName profileImage')
         .populate('user2', 'name lastName profileImage')
         .exec();

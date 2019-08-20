@@ -3,7 +3,7 @@ var mongoose = require('mongoose'),
 
 var message = new Schema({
   text:     { type: String },
-  timestamp:   { type: Number },
+  createdAt:   { type: Date },
   user: {
     type: Schema.Types.ObjectId,
     ref: 'User'
