@@ -46,7 +46,7 @@
       const insertedMessage = await newMessage.save();
 
       const query = { $push: { messages: insertedMessage.id }};
-      await Chat.update({ _id: mongoose.Types.ObjectId(chatId) }, query);
+      await Chat.updateOne({ _id: mongoose.Types.ObjectId(chatId) }, query);
       const res = new Response();
       res.output = insertedMessage;
       return res;
