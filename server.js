@@ -42,7 +42,11 @@
   const chatSocket = require('./sockets/chatSocket');
 
   io.on('connection', (socket) => {
-    socket.on('setId', userId => mobileSockets[userId] = socket.id);
+    console.log('connection: ', socket.id);
+    socket.on('setId', userId => {
+      console.log('set user socket: ', userId);
+      mobileSockets[userId] = socket.id;
+    });
     socket.on('message', message => chatSocket.saveMessage(socket, mobileSockets, message));
   });
 
