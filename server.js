@@ -22,6 +22,7 @@
 
   // Set mercadopago
   mercadopago.configure({
+    sandbox: true,
     client_id: process.env.MP_CLIENT_ID,
     client_secret: process.env.MP_CLIENT_SECRET
   });
