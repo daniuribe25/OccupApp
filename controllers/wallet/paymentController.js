@@ -1,5 +1,5 @@
 ((paymentCtrl, paymentRepo, mongoose, notificationService,
-  notificationTokenRepo, pushActions, paymentStatus) => {
+  notificationTokenRepo, pushActions, paymentStatus, Response) => {
 
   paymentCtrl.getAll = (req, res) => {
     paymentRepo.get({}, 0, (response) => {
@@ -62,6 +62,44 @@
       res.json(response)
     });
   }
+
+  paymentCtrl.setPaymentPreferences = async (req, res, mercadopago) => {
+    const response = new Response();
+    try {
+      const preferences = await mercadopago.preferences.create({
+        items: [
+          {
+            id: '1234',
+            title: 'Small Aluminum Shirt',
+            quantity: 1,
+            currency_id: 'COP',
+            unit_price: 2000
+          }
+        ],
+        payer: {
+          email: 'dani.uribe25@gmail.com',
+          name: "Charles",
+          surname: "Santana",
+          date_created: "2019-06-02T12:58:41.425-04:00",
+          phone: {
+            area_code: "+57",
+            number: 9233412363
+          },
+          identification: {
+            type: "DNI",
+            number: "12345678"
+          },
+        }
+      });
+      response.output = preferences.body.init_point;
+      res.json(response);
+    } catch (err) {
+      response.message = err;
+      response.success = false;
+      res.json(response);
+    }
+  }
+  
   
 
   paymentCtrl.delete = (req, res) => {
@@ -86,4 +124,5 @@
   require('../../repository/common/notificationTokenRepo'),
   require('../../config/constants').pushActions,
   require('../../config/constants').paymentStatus,
+  require('../../dtos/Response'),
 )
