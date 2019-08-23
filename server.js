@@ -1,6 +1,6 @@
 'use strict';
 ((express, http, bodyParser, methodOverride, mongoConnection,
-  authenticateUser, cors, fs, path, socket) => {
+  authenticateUser, cors, fs, path, socket, mercadopago) => {
 
   // Config and variables
   require('custom-env').env(process.env.NODE_ENV);
@@ -19,6 +19,12 @@
   } catch (err) {
     if (err.code !== 'EEXIST') throw err
   }
+
+  // Set mercadopago
+  mercadopago.configure({
+    client_id: process.env.MP_CLIENT_ID,
+    client_secret: process.env.MP_CLIENT_SECRET
+  });
   
   // Middlewares
   app.use(bodyParser.urlencoded({ extended: false }));
@@ -36,6 +42,8 @@
   app.use('/api', require('./routes/notificationTokenRoutes'));
   app.use('/api', require('./routes/serviceCategoriesRoutes'));
   app.use('/api', require('./routes/chatsRoutes'));
+  app.use('/api/setPaymentPreferences', (req, res) => {
+    require('./controllers/wallet/paymentController').setPaymentPreferences(req, res, mercadopago) });
   app.use('/', (req, res) => { res.send('Occupapp Api'); });
 
   // On socket connection
@@ -49,6 +57,8 @@
     });
     socket.on('message', message => chatSocket.saveMessage(socket, mobileSockets, message));
   });
+
+ 
 
   // Boot app
   httpApp.listen(server_port, () => {
@@ -65,4 +75,5 @@
   require('fs'),
   require('path'),
   require('socket.io'),
+  require('mercadopago')
 )
