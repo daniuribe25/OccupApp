@@ -100,11 +100,22 @@
     }
   }
 
-  paymentCtrl.paymentNotification = (req, res, mercadopago) => {
-    console.log('params::');
-    console.log(req.params);
-    console.log('body::');
-    console.log(req.body);
+  paymentCtrl.paymentNotification = async (req, res, mercadopago) => {
+    console.log('query payment::', req.query, req.body);
+    let payment = null;
+    let merchantOrder = null;
+    switch (req.query.topic) {
+      case 'payment':
+        payment = await mercadopago.payment.findById(req.query.id);
+        console.log('PAGO== ', payment);
+        merchantOrder = await mercadopago.merchantOrder.findById(payment.orderId);
+        break
+      case 'merchant_order':
+        merchantOrder = await mercadopago.merchantOrder.findById(req.query.id);
+        console.log('ORDEN== ', merchantOrder);
+        break
+    }
+    
     res.sendStatus(200);
   }
 

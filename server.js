@@ -56,13 +56,12 @@
   io.on('connection', (socket) => {
     console.log('connection: ', socket.id);
     socket.on('setId', userId => {
-      console.log('set user socket: ', userId);
-      mobileSockets[userId] = socket.id;
+      if (!mobileSockets[userId]) {
+        mobileSockets[userId] = socket.id;
+      }
     });
     socket.on('message', message => chatSocket.saveMessage(socket, mobileSockets, message));
   });
-
- 
 
   // Boot app
   httpApp.listen(server_port, () => {
