@@ -108,10 +108,10 @@
       case 'payment':
         payment = await mercadopago.payment.findById(req.query.id);
         console.log('PAGO== ', payment);
-        merchantOrder = await mercadopago.merchantOrder.findById(payment.orderId);
+        merchantOrder = await mercadopago.merchant_orders.findById(payment.orderId);
         break
       case 'merchant_order':
-        merchantOrder = await mercadopago.merchantOrder.findById(req.query.id);
+        merchantOrder = await mercadopago.merchant_orders.findById(req.query.id);
         console.log('ORDEN== ', merchantOrder);
         break
     }
