@@ -107,6 +107,7 @@
     console.log(req.params.id);
     console.log('body::');
     console.log(req.body);
+    res.sendStatus(200);
   }
 
   paymentCtrl.delete = (req, res) => {
