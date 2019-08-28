@@ -101,10 +101,8 @@
   }
 
   paymentCtrl.paymentNotification = (req, res, mercadopago) => {
-    console.log('topic::');
-    console.log(req.params.topic);
-    console.log('id::');
-    console.log(req.params.id);
+    console.log('params::');
+    console.log(req.params);
     console.log('body::');
     console.log(req.body);
     res.sendStatus(200);
