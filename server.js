@@ -46,6 +46,8 @@
   app.use('/api', require('./routes/chatsRoutes'));
   app.use('/api/setPaymentPreferences', (req, res) => {
     require('./controllers/wallet/paymentController').setPaymentPreferences(req, res, mercadopago) });
+  app.use('/api/paymentNotification', (req, res) => {
+    require('./controllers/wallet/paymentController').paymentNotification(req, res, mercadopago) });
   app.use('/', (req, res) => { res.send('Occupapp Api'); });
 
   // On socket connection

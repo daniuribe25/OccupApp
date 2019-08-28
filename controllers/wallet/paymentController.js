@@ -73,11 +73,11 @@
             title: 'Small Aluminum Shirt',
             quantity: 1,
             currency_id: 'COP',
-            unit_price: 2000
+            unit_price: 12000
           }
         ],
         payer: {
-          email: 'dani.uribe25@gmail.com',
+          email: 'dani.uribe16@gmail.com',
           name: "Charles",
           surname: "Santana",
           date_created: "2019-06-02T12:58:41.425-04:00",
@@ -99,8 +99,15 @@
       res.json(response);
     }
   }
-  
-  
+
+  paymentCtrl.paymentNotification = (req, res, mercadopago) => {
+    console.log('topic::');
+    console.log(req.params.topic);
+    console.log('id::');
+    console.log(req.params.id);
+    console.log('body::');
+    console.log(req.body);
+  }
 
   paymentCtrl.delete = (req, res) => {
     let query = { _id: mongoose.Types.ObjectId(req.params.id) };
