@@ -128,7 +128,8 @@
       });
     });
 
-    paymentRepo.create(payments);
+    const resp = await paymentRepo.create(payments);
+    console.log(resp);
     res.sendStatus(200);
   }
 
