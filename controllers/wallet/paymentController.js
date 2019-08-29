@@ -117,7 +117,7 @@
     }
 
     const payments = [];
-    merchantOrder.payments.forEach((p) => {
+    merchantOrder.body.payments.forEach((p) => {
       payments.push({
         topic: req.query.topic,
         transactionId: req.query.id,
