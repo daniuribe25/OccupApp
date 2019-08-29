@@ -117,16 +117,26 @@
     }
 
     const payments = [];
-    merchantOrder.body.payments.forEach((p) => {
+    if (merchantOrder.body.payments.length) {
+      merchantOrder.body.payments.forEach((p) => {
+        payments.push({
+          topic: req.query.topic,
+          transactionId: req.query.id,
+          paymentStatus: p.status,
+          amount: p.transaction_amount,
+          sentByEmail: p.payer.email,
+          dateTime: p.date_approved,
+        });
+      });
+    } else {
       payments.push({
         topic: req.query.topic,
         transactionId: req.query.id,
-        paymentStatus: p.status,
-        amount: p.transaction_amount,
-        sentByEmail: p.payer.email,
-        dateTime: p.date_approved,
+        paymentStatus: merchantOrder.body.status,
+        amount: merchantOrder.body.total_amount,
+        dateTime: merchantOrder.body.date_created,
       });
-    });
+    }
 
     const resp = await paymentRepo.create(payments);
     console.log(resp);
