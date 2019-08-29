@@ -115,7 +115,20 @@
         console.log('ORDEN== ', merchantOrder);
         break
     }
-    
+
+    const payments = [];
+    merchantOrder.payments.forEach((p) => {
+      payments.push({
+        topic: req.query.topic,
+        transactionId: req.query.id,
+        paymentStatus: p.status,
+        amount: p.transaction_amount,
+        sentByEmail: p.payer.email,
+        dateTime: p.date_approved,
+      });
+    });
+
+    paymentRepo.create(payments);
     res.sendStatus(200);
   }
 

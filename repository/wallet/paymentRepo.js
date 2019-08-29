@@ -2,6 +2,7 @@
   Payment,
   paymentStatus,
   commonServ,
+  Response,
   mongoose) => {
 
   paymentRepo.getPopulated = (query, limit, cb) => {
@@ -16,19 +17,15 @@
     })
   };
 
-  paymentRepo.create = (payment, cb) => {
-    let newPayment = new Payment();
-    newPayment.service = payment.service;
-    newPayment.value = payment.value;
-    newPayment.status = paymentStatus.ON_WALLET;
-    newPayment.sentBy = payment.sentBy;
-    newPayment.receivedBy = payment.receivedBy;
-
-    newPayment.save((err, insertedItem) => {
-      let res = commonServ.handleErrorResponse(err);
-      res.output = insertedItem;
-      cb(res);
-    });
+  paymentRepo.create = async (payments) => {
+    try {  
+      const inserted = await Payment.insertMany(payments);
+      const res = new Response();
+      res.output = inserted;
+      return res;
+    } catch (err) {
+      return commonServ.handleErrorResponse(err);
+    }
   };
 
   paymentRepo.update = (id, payment, cb) => {
@@ -60,5 +57,6 @@
   require('../../models/wallet/Payment'),
   require('../../config/constants').paymentStatus,
   require('../../helpers/commonServices'),
+  require('../../dtos/Response'),
   require('mongoose')
 )
