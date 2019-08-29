@@ -20,6 +20,7 @@
   paymentRepo.create = async (payments) => {
     try {  
       const inserted = await Payment.insertMany(payments);
+      console.log(inserted)
       const res = new Response();
       res.output = inserted;
       return res;
