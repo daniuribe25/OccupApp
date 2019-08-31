@@ -9,7 +9,7 @@
   const app = express();
   const httpApp = http.createServer(app);
   // Set socket server
-  const io = socket(httpApp)
+  // const io = socket(httpApp)
   const mobileSockets = {};
   // Connect database
   mongoConnection.connect();
