@@ -7,7 +7,7 @@
   userRepo.get = async (query, limit) => {
     try {
       const records = await User.find(query).limit(limit)
-      const res = new Response();
+      const res = commonServ.handleRecordFound(new Response(), records);
       res.output = records;
       return res;
     } catch (err) {

@@ -17,6 +17,7 @@
         response.message = "Not found";
       }
     }
+    return response;
   };
 
   commonServices.sendEmail = (subject, from, to, html, text, cb ) => {

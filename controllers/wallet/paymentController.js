@@ -15,8 +15,32 @@
   }
 
   paymentCtrl.getByUser = (req, res) => {
+    const d = new Date();
+    const localTime = d.getTime();
+    const localOffset = d.getTimezoneOffset() * 60000;
+    const utc = localTime + localOffset;
+    const colUTC = utc + (3600000*(-5));
+    const date = new Date(colUTC);
+    const gte = new Date(new Date(date.getTime()).setMinutes(date.getMinutes() - 230));
     const { user } = req.params;
-    const query = { receivedBy: mongoose.Types.ObjectId(user) };
+    const query = { $or: [
+      { $and: [
+        { receivedByEmail: user },
+        { paymentStatus: 'approved' },
+        { dateTime: {
+          $gte: gte,
+          $lt: date
+        }}
+      ]},
+      { $and: [
+        { topic: 'merchant_order' },
+        { paymentStatus: 'opened' },
+        { dateTime: {
+          $gte: gte,
+          $lt: date
+        }}
+      ]}
+    ]};
     paymentRepo.getPopulated(query, 0, (response) => {
       res.json(response);
     });
@@ -138,8 +162,7 @@
       });
     }
 
-    const resp = await paymentRepo.create(payments);
-    console.log(resp);
+    await paymentRepo.create(payments);
     res.sendStatus(200);
   }
 
