@@ -53,7 +53,7 @@
       profileImage: !req.file ? req.body.profileImage : '',
     };
     // create user
-    response = await userRepo.create(newUser);
+    const response = await userRepo.create(newUser);
     if (response.success) {
       //send email
       sendUserEmail(response.output.name, response.output.email);
@@ -66,12 +66,12 @@
 
       if (req.file) {
         // upload and set image url
-        newUser = response.output._doc;
+        newUser = { ...response.output };
         const result = await uploadServices.uploadImage(file, 'ProfileImages');
         if (result.success) {
-          newUser.profileImage = result.url;
+          newUser.profileImage = result.output.secure_url;
           await userRepo.update(newUser._id, newUser)
-          res.output = newUser;
+          response.output = newUser;
           res.json(response);
         } else res.json(response);
       }

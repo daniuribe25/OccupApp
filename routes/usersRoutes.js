@@ -4,7 +4,7 @@ const upload = multer({ storage: multer.diskStorage({
   destination: (req, file, cb) => { cb(null, './uploads/'); },
   filename: (req, file, cb) => {
     const fileName = (new Date().toISOString()).replace(/:/g, '-');
-    cb(null, `${fileName}_${file.originalname}`)}
+    cb(null, file ? `${fileName}_${file.originalname}` : null)}
 }) });
 
 const usersCtrl = require('../controllers/users/usersController');

@@ -9,7 +9,7 @@
   const app = express();
   const httpApp = http.createServer(app);
   // Set socket server
-  // const io = socket(httpApp)
+  const io = socket(httpApp)
   const mobileSockets = {};
   // Connect database
   mongoConnection.connect();
@@ -50,18 +50,17 @@
     require('./controllers/wallet/paymentController').paymentNotification(req, res, mercadopago) });
   app.use('/', (req, res) => { res.send('Occupapp Api'); });
 
-  // // On socket connection
-  // const chatSocket = require('./sockets/chatSocket');
+  // On socket connection
+  const chatSocket = require('./sockets/chatSocket');
 
-  // io.on('connection', (socket) => {
-  //   console.log('connection: ', socket.id);
-  //   socket.on('setId', userId => {
-  //     if (!mobileSockets[userId]) {
-  //       mobileSockets[userId] = socket.id;
-  //     }
-  //   });
-  //   socket.on('message', message => chatSocket.saveMessage(socket, mobileSockets, message));
-  // });
+  io.on('connection', (socket) => {
+    socket.on('setId', userId => {
+      if (!mobileSockets[userId]) {
+        mobileSockets[userId] = socket.id;
+      }
+    });
+    socket.on('message', message => chatSocket.saveMessage(socket, mobileSockets, message));
+  });
 
   // Boot app
   httpApp.listen(server_port, () => {

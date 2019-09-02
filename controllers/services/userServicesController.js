@@ -6,6 +6,16 @@
     res.json(response);
   }
 
+  userServicesCtrl.getExceptUser = async (req, res) => {
+    const { userId } = req.params;
+    const query = { $and: [
+      { isActive: { $ne: false }},
+      { userId: { $ne: userId }}
+    ]};
+    const response = await userServicesRepo.getPopulated(query, 0);
+    res.json(response);
+  }
+
   userServicesCtrl.getById = async (req, res) => {
     const { id } = req.params;
     const response = await userServicesRepo.getPopulated({ _id: mongoose.Types.ObjectId(id) }, 1)

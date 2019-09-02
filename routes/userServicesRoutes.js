@@ -20,6 +20,7 @@ routerUserService.route('/user_services/:id')
     .get(userServicesCtrl.getById)
     .delete(userServicesCtrl.delete);
 
+routerUserService.route('/except_user/:userId').get(userServicesCtrl.getExceptUser)
 routerUserService.route('/getByUser/:userId').get(userServicesCtrl.getByUser)
 routerUserService.route('/disable_service/:id').patch(userServicesCtrl.disableService)
 routerUserService.route('/user_services_media')
