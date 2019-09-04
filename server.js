@@ -54,6 +54,7 @@
   const chatSocket = require('./sockets/chatSocket');
 
   io.on('connection', (socket) => {
+    console.log('connection', socket.id);
     socket.on('setId', userId => {
       mobileSockets[userId] = socket.id;
       console.log(userId, socket.id);
