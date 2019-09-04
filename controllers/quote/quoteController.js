@@ -138,6 +138,12 @@
     } else res.json(updateServResponse);
   }
 
+  quoteCtrl.rateService = async (req, res) => {
+    const quote = { rating: req.body.rating };
+    const updateQuoteResponse = await quoteRepo.update(req.body.quoteId, quote);
+    res.json(updateQuoteResponse);
+  }
+
   quoteCtrl.delete = async (req, res) => {
     let query = { _id: mongoose.Types.ObjectId(req.params.id) };
     const response = await quoteRepo.delete(query);

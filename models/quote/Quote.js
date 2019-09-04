@@ -27,6 +27,7 @@ var quote = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'QuoteMedia',
   }],
+  rating:      { type: Number },
   isActive:    { type: Boolean, default: true },
   createdAt:   { type: Date, default: new Date() },
 }, {

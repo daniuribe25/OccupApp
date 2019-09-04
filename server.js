@@ -55,9 +55,7 @@
 
   io.on('connection', (socket) => {
     socket.on('setId', userId => {
-      if (!mobileSockets[userId]) {
-        mobileSockets[userId] = socket.id;
-      }
+      mobileSockets[userId] = socket.id;
     });
     socket.on('message', message => chatSocket.saveMessage(socket, mobileSockets, message));
   });

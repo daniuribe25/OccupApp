@@ -24,5 +24,6 @@ routerQuote.route('/quote/:id')
 
 routerQuote.route('/user_quote_full/:user').get(quoteCtrl.getByUser);
 routerQuote.route('/user_quote/:user').get(quoteCtrl.getWithServiceByUser);
+routerQuote.route('/rate_service').patch(quoteCtrl.rateService);
 
 module.exports = routerQuote;
