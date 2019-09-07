@@ -14,14 +14,9 @@
     });
   }
 
-  paymentCtrl.getByUser = (req, res) => {
-    const d = new Date();
-    const localTime = d.getTime();
-    const localOffset = d.getTimezoneOffset() * 60000;
-    const utc = localTime + localOffset;
-    const colUTC = utc + (3600000*(-5));
-    const date = new Date(colUTC);
-    const gte = new Date(new Date(date.getTime()).setMinutes(date.getMinutes() - 230));
+  paymentCtrl.getLastByUser = async (req, res) => {
+    const date = getUTCDate(-5); // Colombian tz
+    const gte = new Date(new Date(date.getTime()).setMinutes(date.getMinutes() - 1));
     const { user } = req.params;
     const query = { $or: [
       { $and: [
@@ -41,9 +36,17 @@
         }}
       ]}
     ]};
-    paymentRepo.getPopulated(query, 0, (response) => {
-      res.json(response);
-    });
+    const response = await paymentRepo.get(query, 0)
+    res.json(response);
+  }
+
+  getUTCDate = (tz) => {
+    const d = new Date();
+    const localTime = d.getTime();
+    const localOffset = d.getTimezoneOffset() * 60000;
+    const utc = localTime + localOffset;
+    const colUTC = utc + (3600000*(tz));
+    return new Date(colUTC);
   }
 
   paymentCtrl.sendPaymentNotification = (userId, title, message, action, id) => {
@@ -65,16 +68,15 @@
     });
   }
 
-  paymentCtrl.create = (req, res) => {
+  paymentCtrl.create = async (req, res) => {
     const { body } = req;
-    paymentRepo.create(body, (paymentResponse) => {
-      if (paymentResponse.success) {
-        this.sendPaymentNotification(body.receivedBy, "Felicitaciones!",
-          "Has recibido una nuevo pago por tu buen servicio",
-          pushActions.ON_WALLET, paymentResponse.output._id);
-      }
-      res.json(paymentResponse);
-    });
+    const paymentResponse = await paymentRepo.create(body);
+    if (paymentResponse.success) {
+      this.sendPaymentNotification(body.receivedBy, "Felicitaciones!",
+        "Has recibido una nuevo pago por tu buen servicio",
+        pushActions.ON_WALLET, paymentResponse.output._id);
+    }
+    res.json(paymentResponse);
   }
 
   paymentCtrl.disbursPayments = (req, res) => {
@@ -89,30 +91,27 @@
 
   paymentCtrl.setPaymentPreferences = async (req, res, mercadopago) => {
     const response = new Response();
+    const { body } = req;
     try {
       const preferences = await mercadopago.preferences.create({
         items: [
           {
-            id: '1234',
-            title: 'Small Aluminum Shirt',
+            id: new Date().getUTCMilliseconds(),
+            title: body.title,
             quantity: 1,
             currency_id: 'COP',
-            unit_price: 12000
+            unit_price: body.unit_price,
           }
         ],
         payer: {
-          email: 'dani.uribe16@gmail.com',
-          name: "Charles",
-          surname: "Santana",
-          date_created: "2019-06-02T12:58:41.425-04:00",
+          email: body.email,
+          name: body.name,
+          surname: body.surname,
+          date_created: new Date(),
           phone: {
             area_code: "+57",
-            number: 9233412363
-          },
-          identification: {
-            type: "DNI",
-            number: "12345678"
-          },
+            number: body.phone
+          }
         }
       });
       response.output = preferences.body.init_point;
@@ -149,7 +148,7 @@
           paymentStatus: p.status,
           amount: p.transaction_amount,
           sentByEmail: p.payer.email,
-          dateTime: p.date_approved,
+          dateTime: getUTCDate(-5),
         });
       });
     } else {

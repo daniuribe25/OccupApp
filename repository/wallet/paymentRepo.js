@@ -5,16 +5,29 @@
   Response,
   mongoose) => {
 
-  paymentRepo.getPopulated = (query, limit, cb) => {
-    Payment.find(query)
-    .limit(limit)
-    .populate('service', 'name')
-    .exec((err, records) => {
-      let res = commonServ.handleErrorResponse(err);
-      commonServ.handleRecordFound(res, records);
+  paymentRepo.get = async (query, limit) => {
+    try {
+    const records = await Payment.find(query).limit(limit);
+    let res = new Response();
+    res = commonServ.handleRecordFound(res, records);
+    res.output = records;
+    } catch (err) {
+      commonServ.handleErrorResponse(err);
+    }
+  };
+
+  paymentRepo.getPopulated = async (query, limit) => {
+    try {
+      const records = await Payment.find(query)
+        .limit(limit)
+        .populate('service', 'name')
+        .exec();
+        let res = new Response();
+      res = commonServ.handleRecordFound(res, records);
       res.output = records;
-      cb(res);
-    })
+    } catch (err) {
+      return commonServ.handleErrorResponse(err);
+    }
   };
 
   paymentRepo.create = async (payments) => {
@@ -28,13 +41,16 @@
     }
   };
 
-  paymentRepo.update = (id, payment, cb) => {
-    let query = { _id: mongoose.Types.ObjectId(id) };
-    Payment.updateOne(query, payment, (err, updatedItem) => {
-      let res = commonServ.handleErrorResponse(err);
+  paymentRepo.update = async (id, payment, cb) => {
+    try {
+      let query = { _id: mongoose.Types.ObjectId(id) };
+      const updatedItem = await Payment.updateOne(query, payment);
+      const res = new Response();
       res.output = updatedItem;
-      cb(res);
-    });
+      return res;
+    } catch (err) {
+      return commonServ.handleErrorResponse(err);
+    }
   };
 
   paymentRepo.updateMany = (query, set, cb) => {

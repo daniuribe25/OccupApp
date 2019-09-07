@@ -5,9 +5,10 @@ var routerPayments = express.Router();
 
 routerPayments.route('/payments')
     .get(paymentsCtrl.getAll)
-    .post(paymentsCtrl.create)
+    .post(paymentsCtrl.create);
 
-routerPayments.route('/user_payments/:user').get(paymentsCtrl.getByUser);
+routerPayments.route('/user_payments/:user').get(paymentsCtrl.getById);
+routerPayments.route('/get_last/:user').get(paymentsCtrl.getLastByUser);
 routerPayments.route('/disbursPayments/:id').get(paymentsCtrl.disbursPayments);
 
 module.exports = routerPayments;
