@@ -9,7 +9,7 @@
     try {
       const records = await Quote.find(query)
         .limit(limit)
-        .populate('sentBy', 'name lastName')
+        .populate('sentBy', 'name lastName email')
         .populate('receivedBy', 'name lastName')
         .populate('quoteMedia', 'mediaUrl type')
         .populate('service', 'name')
@@ -26,8 +26,8 @@
     try {
       const records = await Quote.find(query)
         .limit(limit)
-        .populate('sentBy', 'name lastName profileImage')
-        .populate('receivedBy', 'name lastName profileImage')
+        .populate('sentBy', 'name lastName profileImage email')
+        .populate('receivedBy', 'name lastName profileImage email')
         .exec();
       const res = new Response();
       res.output = records;

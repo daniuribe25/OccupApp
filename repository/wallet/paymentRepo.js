@@ -7,10 +7,11 @@
 
   paymentRepo.get = async (query, limit) => {
     try {
-    const records = await Payment.find(query).limit(limit);
-    let res = new Response();
-    res = commonServ.handleRecordFound(res, records);
-    res.output = records;
+      const records = await Payment.find(query).limit(limit);
+      let res = new Response();
+      res = commonServ.handleRecordFound(res, records);
+      res.output = records;
+      return res;
     } catch (err) {
       commonServ.handleErrorResponse(err);
     }
@@ -25,6 +26,7 @@
         let res = new Response();
       res = commonServ.handleRecordFound(res, records);
       res.output = records;
+      return res;
     } catch (err) {
       return commonServ.handleErrorResponse(err);
     }
@@ -41,10 +43,18 @@
     }
   };
 
-  paymentRepo.update = async (id, payment, cb) => {
+  paymentRepo.update = async (id, payment) => {
     try {
+      const p = {
+        status: paymentStatus.PAYED,
+        service: payment.service._id,
+        sentByEmail: payment.sentBy.email,
+        sentBy: payment.sentById,
+        receivedByEmail: payment.receivedBy.email,
+        receivedBy: payment.receivedById,
+      };
       let query = { _id: mongoose.Types.ObjectId(id) };
-      const updatedItem = await Payment.updateOne(query, payment);
+      const updatedItem = await Payment.updateOne(query, p);
       const res = new Response();
       res.output = updatedItem;
       return res;

@@ -10,7 +10,7 @@
     try {
       const records = await UserService.find(query)
         .limit(limit)
-        .populate('user', 'name lastName')
+        .populate('user', 'name lastName email')
         .populate('serviceMedia', 'mediaUrl type publicId')
         .populate({
           path: 'service',

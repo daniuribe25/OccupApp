@@ -12,7 +12,7 @@ var payment = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'Service'
   },
-  sentByEmail: { type: String },
+  sentByEmail: { type: String }, 
   sentBy: {
     type: Schema.Types.ObjectId,
     ref: 'User'

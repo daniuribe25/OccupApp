@@ -68,16 +68,27 @@
     });
   }
 
-  paymentCtrl.create = async (req, res) => {
+  paymentCtrl.updatePayment = async (req, res) => {
     const { body } = req;
-    const paymentResponse = await paymentRepo.create(body);
+    const { id } = req.params;
+
+    const paymentResponse = await paymentRepo.update(id, body);
     if (paymentResponse.success) {
-      this.sendPaymentNotification(body.receivedBy, "Felicitaciones!",
-        "Has recibido una nuevo pago por tu buen servicio",
-        pushActions.ON_WALLET, paymentResponse.output._id);
+      sendPaymentEmail(id, 'dani.uribe25@gmail.com');
     }
     res.json(paymentResponse);
   }
+
+  const sendPaymentEmail = (pId, to) => {
+    const htmlContent = `<p>Payment ID: ${pId}<p>`;
+
+    commonServ.sendEmail(
+      'Nuevo pago Occupapp',
+      'dani.uribe25@gmail.com', to,
+      htmlContent, '',
+      (result) => result
+    );
+  };
 
   paymentCtrl.disbursPayments = (req, res) => {
     const query = { $and: [
