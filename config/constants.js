@@ -16,7 +16,7 @@ const paymentStatus = {
 const pushActions = {
     SENT: 'Sent',
     ANSWERED: 'Answered',
-    ON_WALLET: 'OnWallet'
+    ON_WALLET: 'OnWallet',
 };
 
 module.exports = {

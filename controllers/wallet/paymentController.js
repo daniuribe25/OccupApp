@@ -1,6 +1,8 @@
 ((paymentCtrl, paymentRepo, mongoose, notificationService,
   notificationTokenRepo, pushActions, paymentStatus, Response) => {
 
+  paymentCtrl.paymentCount = 0;
+
   paymentCtrl.getAll = (req, res) => {
     paymentRepo.get({}, 0, (response) => {
         res.json(response);
@@ -14,13 +16,12 @@
     });
   }
 
-  paymentCtrl.getLastByUser = async (req, res) => {
+  paymentCtrl.getLastByUser = async (userEmail) => {
     const date = getUTCDate(-5); // Colombian tz
     const gte = new Date(new Date(date.getTime()).setMinutes(date.getMinutes() - 1));
-    const { user } = req.params;
     const query = { $or: [
       { $and: [
-        { receivedByEmail: user },
+        { receivedByEmail: userEmail },
         { paymentStatus: 'approved' },
         { dateTime: {
           $gte: gte,
@@ -36,8 +37,13 @@
         }}
       ]}
     ]};
+
     const response = await paymentRepo.get(query, 0)
-    res.json(response);
+    if (!response.success && paymentCtrl.paymentCount < 5) {
+      await sleep(3000);
+      paymentCtrl.paymentCount++;
+      return await paymentCtrl.getLastByUser(userEmail);
+    } else return response;
   }
 
   getUTCDate = (tz) => {
@@ -68,15 +74,43 @@
     });
   }
 
+  sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+  paymentCtrl.notifyTransaction = (userId, title, message, action) => {
+    notificationTokenRepo.get({ userId }, 1, (response) => {
+      if (response.success) {
+        var data = {
+          app_id: "368c949f-f2ef-4905-8c78-4040697f38cf",
+          contents: { en: message },
+          headings: { en: title },
+          template_id: '1bc00fbd-1b9a-4f5f-abdd-83f48a0418cf',
+          include_player_ids: [response.output[0].token],
+          data: { action }
+        };
+    
+        notificationService.send(data, () => {}, (e) => {
+          console.log(JSON.parse(e))
+        });
+      }
+    });
+  }
+
   paymentCtrl.updatePayment = async (req, res) => {
     const { body } = req;
-    const { id } = req.params;
+    const { email } = req.params;
 
-    const paymentResponse = await paymentRepo.update(id, body);
-    if (paymentResponse.success) {
-      sendPaymentEmail(id, 'dani.uribe25@gmail.com');
-    }
-    res.json(paymentResponse);
+    const payment = await paymentCtrl.getLastByUser(email);
+    if (payment.success) {
+      const paymentResponse = await paymentRepo.update(payment.output[0].id, body);
+      sendPaymentEmail(email, 'dani.uribe25@gmail.com');
+      const title = `Tu pago a sido ${payment.paymentStatus === 'approved'
+        ? 'aprobado' : 'rechazado' }`;
+      const message = payment.paymentStatus === 'approved'
+        ? 'Tu servicio quedó agendado' : 'Intentalo nuevamente';
+
+      paymentCtrl.notifyTransaction(body.sentById, title, message, pushActions.ON_WALLET);
+      res.json(paymentResponse);
+    } else res.json(payment);
   }
 
   const sendPaymentEmail = (pId, to) => {
