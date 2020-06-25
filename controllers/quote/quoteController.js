@@ -34,23 +34,22 @@
     res.json(response);
   }
 
-  quoteCtrl.sendQuoteNotification = (userId, title, message, action, id) => {
-    notificationTokenRepo.get({ userId }, 1, (response) => {
-      if (response.success) {
-        var data = {
-          app_id: "368c949f-f2ef-4905-8c78-4040697f38cf",
-          contents: { en: message },
-          headings: { en: title },
-          template_id: '1bc00fbd-1b9a-4f5f-abdd-83f48a0418cf',
-          include_player_ids: [response.output[0].token],
-          data: { action, id }
-        };
-    
-        notificationService.send(data, () => {}, (e) => {
-          console.log(JSON.parse(e))
-        });
-      }
-    });
+  quoteCtrl.sendQuoteNotification = async (userId, title, message, action, id) => {
+    const response = await notificationTokenRepo.get({ userId }, 1);
+    if (response.success) {
+      var data = {
+        app_id: "368c949f-f2ef-4905-8c78-4040697f38cf",
+        contents: { en: message },
+        headings: { en: title },
+        template_id: '1bc00fbd-1b9a-4f5f-abdd-83f48a0418cf',
+        include_player_ids: [response.output[0].token],
+        data: { action, id }
+      };
+  
+      notificationService.send(data, () => {}, (e) => {
+        console.log(JSON.parse(e))
+      });
+    }
   }
 
   quoteCtrl.create = async (req, res) => {

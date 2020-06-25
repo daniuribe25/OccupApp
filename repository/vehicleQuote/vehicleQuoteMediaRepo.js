@@ -1,11 +1,11 @@
 ((quoteMediaRepo,
-  QuoteMedia,
+  VehicleQuoteMedia,
   commonServ,
   mongoose,
   Response) => {
 
   quoteMediaRepo.get = (query, limit, cb) => {
-    QuoteMedia.find(query, (err, records) => {
+    VehicleQuoteMedia.find(query, (err, records) => {
       let res = commonServ.handleErrorResponse(err);
       commonServ.handleRecordFound(res, records);
       res.output = records;
@@ -16,7 +16,7 @@
 
   quoteMediaRepo.create = async (images) => {
     try {
-      const insertedItem = await QuoteMedia.insertMany(images);
+      const insertedItem = await VehicleQuoteMedia.insertMany(images);
       const res = new Response();
       res.output = insertedItem;
       return res;
@@ -27,7 +27,7 @@
 
   quoteMediaRepo.delete = async (query) => {
     try {
-      const resp = await QuoteMedia.deleteMany(query);
+      const resp = await VehicleQuoteMedia.deleteMany(query);
       const res = new Response();
       res.output = resp;
       return res;
@@ -38,7 +38,7 @@
 
  })(
   module.exports,
-  require('../../models/quote/QuoteMedia'),
+  require('../../models/vehicleQuote/VehicleQuoteMedia'),
   require('../../helpers/commonServices'),
   require('mongoose'),
   require('../../dtos/Response'),

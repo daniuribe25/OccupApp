@@ -1,11 +1,11 @@
 var mongoose = require('mongoose'),
     Schema   = mongoose.Schema;
 
-var city = new Schema({
+var vehicleCategory = new Schema({
   name:        { type: String },
   isActive:    { type: Boolean },
 }, {
-  collection: 'Cities'
+  collection: 'VehicleCategory'
 });
 
-module.exports = mongoose.model('City', city);
+module.exports = mongoose.model('VehicleCategory', vehicleCategory);
