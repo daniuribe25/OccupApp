@@ -5,6 +5,7 @@ var notificationToken = new Schema({
   userId:      { type: String },
   token:       { type: String },
   platform:    { type: String },
+  role:        { type: String },
   createdDate: { type: Date, default: Date.now },
 }, {
   collection: 'NotificationToken'

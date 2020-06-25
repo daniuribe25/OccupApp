@@ -1,13 +1,13 @@
-((quoteRepo,
-  Quote,
+((vehicleQuoteRepo,
+  VehicleQuote,
   quoteStatus,
   commonServ,
   mongoose,
   Response) => {
 
-  quoteRepo.getPopulated = async (query, limit) => {
+  vehicleQuoteRepo.getPopulated = async (query, limit) => {
     try {
-      const records = await Quote.find(query)
+      const records = await VehicleQuote.find(query)
         .limit(limit)
         .populate('sentBy', 'name lastName email')
         .populate('receivedBy', 'name lastName')
@@ -22,9 +22,9 @@
     }
   };
 
-  quoteRepo.getWithUsers = async (query, limit) => {
+  vehicleQuoteRepo.getWithUsers = async (query, limit) => {
     try {
-      const records = await Quote.find(query)
+      const records = await VehicleQuote.find(query)
         .limit(limit)
         .populate('sentBy', 'name lastName profileImage email')
         .populate('receivedBy', 'name lastName profileImage email')
@@ -37,9 +37,9 @@
     }
   };
 
-  quoteRepo.getWithService = async (query, limit) => {
+  vehicleQuoteRepo.getWithService = async (query, limit) => {
     try {
-      const records = await Quote.find(query)
+      const records = await VehicleQuote.find(query)
         .limit(limit)
         .populate('service', 'name')
         .exec();
@@ -51,9 +51,9 @@
     }
   };
 
-  quoteRepo.get = async (query, limit) => {
+  vehicleQuoteRepo.get = async (query, limit) => {
     try {
-      const records = await Quote.find(query).limit(limit);;
+      const records = await VehicleQuote.find(query).limit(limit);;
       const res = new Response();
       res.output = records;
       return res;
@@ -62,18 +62,24 @@
     }
   };
 
-  quoteRepo.create = async (quote) => {
-    let newQuote = new Quote();
-    newQuote.service = quote.service;
-    newQuote.serviceId = quote.service;
+  // Used
+  vehicleQuoteRepo.create = async (quote) => {
+    let newQuote = new VehicleQuote();
     newQuote.description = quote.description;
-    newQuote.location = quote.location;
-    newQuote.dateTime = quote.dateTime;
-    newQuote.status = quoteStatus.SENT;
     newQuote.sentBy = quote.sentBy;
-    newQuote.receivedBy = quote.receivedBy;
     newQuote.sentById = quote.sentBy;
-    newQuote.receivedById = quote.receivedBy;
+
+    newQuote.model = quote.model;
+    newQuote.categoryId = quote.category;
+    newQuote.brandId = quote.brand;
+    newQuote.referenceId = quote.reference;
+    newQuote.sectionId = quote.section;
+    newQuote.itemId = quote.item;
+    newQuote.category = quote.category;
+    newQuote.brand = quote.brand;
+    newQuote.reference = quote.reference;
+    newQuote.section = quote.section;
+    newQuote.item = quote.item;
     try {
       const insertedItem = await newQuote.save();
       const res = new Response();
@@ -84,10 +90,11 @@
     }
   };
 
-  quoteRepo.update = async (id, quote) => {
+  // used
+  vehicleQuoteRepo.update = async (id, quote) => {
     try {
       let query = { _id: mongoose.Types.ObjectId(id) };
-      const updatedItem = await Quote.updateOne(query, quote);
+      const updatedItem = await VehicleQuote.updateOne(query, quote);
       const res = new Response();
       res.output = updatedItem;
       return res;
@@ -96,20 +103,9 @@
     }
   };
 
-  quoteRepo.delete = async (query) => {
-    try {
-      const resp = await Quote.deleteOne(query);
-      const res = new Response();
-      res.output = resp;
-      return res;
-    } catch (err) {
-      return commonServ.handleErrorResponse(err);
-    }
-  };
-
  })(
   module.exports,
-  require('../../models/quote/Quote'),
+  require('../../models/vehicleQuote/VehicleQuote'),
   require('../../config/constants').quoteStatus,
   require('../../helpers/commonServices'),
   require('mongoose'),

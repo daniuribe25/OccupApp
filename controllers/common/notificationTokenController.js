@@ -1,9 +1,8 @@
 ((notificationTokenCtrl, notificationTokenRepo, mongoose) => {
 
-  notificationTokenCtrl.getAll = (req, res) => {
-    notificationTokenRepo.get({}, 0, (response) => {
-        res.json(response);
-    });
+  notificationTokenCtrl.getAll = async (req, res) => {
+    const response = await notificationTokenRepo.get({}, 0);
+    res.json(response);
   }
 
   notificationTokenCtrl.registerToken = (req, res) => {

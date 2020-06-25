@@ -1,15 +1,15 @@
 var mongoose = require('mongoose'),
     Schema   = mongoose.Schema;
 
-var serviceMedia = new Schema({
+var vehicleQuoteMedia = new Schema({
   quote: {
     type: Schema.Types.ObjectId,
-    ref: 'Quote',
+    ref: 'VehicleQuote',
   },
   mediaUrl: { type: String },
   type: { type: String },
 }, {
-  collection: 'QuoteMedia'
+  collection: 'VehicleQuoteMedia'
 });
 
-module.exports = mongoose.model('QuoteMedia', serviceMedia);
+module.exports = mongoose.model('VehicleQuoteMedia', vehicleQuoteMedia);

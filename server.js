@@ -43,6 +43,7 @@
   app.use('/api', require('./routes/paymentsRoutes'));
   app.use('/api', require('./routes/notificationTokenRoutes'));
   app.use('/api', require('./routes/serviceCategoriesRoutes'));
+  app.use('/api', require('./routes/vehiclesRoutes'));
   app.use('/api', require('./routes/chatsRoutes'));
   app.use('/api/setPaymentPreferences', (req, res) => {
     require('./controllers/wallet/paymentController').setPaymentPreferences(req, res, mercadopago) });

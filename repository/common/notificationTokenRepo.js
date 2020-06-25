@@ -1,15 +1,18 @@
 ((notificationTokenRepo,
   NotificationToken,
   commonServ,
-  mongoose) => {
+  mongoose,
+  Response) => {
 
-  notificationTokenRepo.get = (query, limit, cb) => {
-    NotificationToken.find(query, (err, records) => {
-      let res = commonServ.handleErrorResponse(err);
-      commonServ.handleRecordFound(res, records);
+  notificationTokenRepo.get = async (query, limit, cb) => {
+    try {
+      const records = await NotificationToken.find(query).limit(limit);
+      const res = new Response();
       res.output = records;
-      cb(res);
-    });
+      return res;
+    } catch (err) {
+      return commonServ.handleErrorResponse(err);
+    }
   };
 
   notificationTokenRepo.create = (notificationToken, cb) => {
@@ -53,5 +56,6 @@
   module.exports,
   require('../../models/common/NotificationToken'),
   require('../../helpers/commonServices'),
-  require('mongoose')
+  require('mongoose'),
+  require('../../dtos/Response'),
 )
